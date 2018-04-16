@@ -1,0 +1,83 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+% \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading nips_2017
+%
+% to avoid loading the natbib package, add option nonatbib:
+
+\usepackage[nonatbib, final]{nips_2017}
+
+% to compㅁle a camera-ready version, add the [final] option, e.g.:
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{amsmath, amssymb, amsfonts, amsthm}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\bibliographystyle{ieeetr}
+
+\title{Bayesian-Adaptive Deep Reinforcement Learning via Ensemble Learning}
+
+% The \author macro works with any number of authors. There are two
+% commands used to separate the names and addresses of multiple
+% authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to
+% break the lines. Using \AND forces a line break at that point. So,
+% if LaTeX puts 3 of 4 authors names on the first line, and the last
+% on the second line, try using \AND instead of \And before the third
+% author name.
+
+\author{Gilwoo Lee \\
+  \texttt{gilwoo@cs.uw.edu} \\
+  %% examples of more authors
+  \And
+  Jeongseok Lee \\
+  \texttt{js@cs.uw.edu}
+}
+
+\begin{document}
+% \nipsfinalcopy is no longer used
+
+\maketitle
+
+\section{Introduction}
+While reinforcement learning is capable of controlling complex autonomous systems, RL algorithms typically require huge amounts of data and can overfit to a particular task or to be prone to disturbance. One of main challenges that needs to be addressed is train a policy robust to various model uncertainties and disturbances. In this project, we aim to address this challenge via an ensemble policy for Bayesian Reinforcement Learning~\cite{ghavamzadeh2015bayesian}.
+
+We assume that there exist a latent physics variable $\phi$ which influences the transition function of the underlying MDP, i.e. the transition function  $P(s',\phi' |s, \phi, a)$ is now a function of state, action, and $\phi$. We would like to learn a policy which maximizes the long term reward given $\phi$. Formally, we would like to find the optimal policy for the following Bellman equaton:
+\begin{equation}\label{eq:rl}
+V^*(s, \phi) = \max_a \mathbb{E} \bigg[R(s, a, \phi) + \gamma \sum_{s', \phi'}P(s',\phi'|s, \phi, a)V^*(s', \phi') \bigg]
+\end{equation}
+where $J_\theta(s; \phi)$ is the reward of following a policy parametrized by $\theta$ starting from state $s$ under physics parameters $\phi$. This formualtion is often refered as Bayes-Adaptive Reinforcement Learning~\cite{ghavamzadeh2015bayesian}.
+
+We make two simplifications to Bayes-Adaptive RL formulation. First, we assume that the dynamics of $s'$ and $\phi'$ are independent given $P(s, \phi, a)$, i.e.
+\begin{equation*}
+P(s',\phi'|s, \phi, a) = P(s'|s, \phi, a)\cdot P(\phi'|s, \phi, a).
+\end{equation*}
+Second, we assume that $\phi$ changes slowly w.r.t. the system such that an optimal policy for a fixed $\phi,$
+$\pi_{\phi}$, is a reasonable short-term approximation of the long-term optimal policy.
+
+Above two assumptions allows us to simplify BARL with a gated ensemble policy learning method. At the high-level, we have a gating network that determines the best estimate of the physics parameters at time $t$,
+\begin{align*}
+p(\phi_t) = g(s_{t-1}, \phi_{t-1}, a_{t-1})
+\end{align*}
+which serves as a gating function for an ensemble of $\phi$-dependent policies, i.e.
+\begin{align*}
+\pi(a_t | s_t) &= \sum_{\phi_t} w(\phi_t) \pi_{\phi_t}(a_t | s_t), \\
+w(\phi_t) &\propto p(\phi_t)
+\end{align*}
+
+We model $g$ as a network capable of modeling evolving state change, e.g. Recurrent Neural Networks or Temporal Convolutional Networks. At the low level, we train an ensemble of $N$ policies, where each policy is trained with $\phi$ sampled from the distribution of physics parameters this system may encounter during the course of operation.
+
+\section{Background}
+
+
+\bibliography{intuitive_physics}
+
+\end{document}
