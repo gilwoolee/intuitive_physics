@@ -39,7 +39,7 @@
   %% examples of more authors
   \And
   Jeongseok Lee \\
-  \texttt{js@cs.uw.edu}
+  \texttt{jslee02@cs.uw.edu}
 }
 
 \begin{document}
@@ -50,7 +50,7 @@
 \section{Introduction}
 While reinforcement learning is capable of controlling complex autonomous systems, RL algorithms typically require huge amounts of data and can overfit to a particular task or to be prone to disturbance. One of main challenges that needs to be addressed is train a policy robust to various model uncertainties and disturbances. In this project, we aim to address this challenge via an ensemble policy for Bayes-Adaptive Reinforcement Learning~\cite{ghavamzadeh2015bayesian}.
 
-We assume that there exist a latent physics variable $\phi$ which influences the transition function of the underlying MDP, i.e. the transition function  $P(s',\phi' |s, \phi, a)$ is now a function of state, action, and $\phi$. We would like to learn a policy which maximizes the long term reward given $\phi$. Formally, we would like to find the optimal policy for the following Bellman equaton:
+We assume that there exists a latent physics variable $\phi$ which influences the transition function of the underlying MDP, i.e. the transition function  $P(s',\phi' |s, \phi, a)$ is now a function of state, action, and $\phi$. We would like to learn a policy which maximizes the long term reward given $\phi$. Formally, we would like to find the optimal policy for the following Bellman equaton:
 \begin{equation}\label{eq:rl}
 V^*(s, \phi) = \max_a \mathbb{E} \bigg[R(s, a, \phi) + \gamma \sum_{s', \phi'}P(s',\phi'|s, \phi, a)V^*(s', \phi') \bigg]
 \end{equation}
@@ -69,7 +69,7 @@ P(\phi_t) = g(s_{t-1}, \phi_{t-1}, a_{t-1})
 \end{align*}
 which serves as a gating function for an ensemble of $\phi$-dependent policies, i.e.
 \begin{align*}
-\pi(a_t | s_t) &= \sum_{\phi_t} P(\phi_t) \pi_{\phi_t}(a_t | s_t)
+\pi(a_t | s_t) &= \sum_{\phi_t} P(\phi_t) \pi_{\phi_t}(a_t | s_t).
 \end{align*}
 
 We model $g$ as a network capable of modeling evolving state change, e.g. Recurrent Neural Networks or Temporal Convolutional Networks. At the low level, we train an ensemble of $N$ policies, where each policy is trained with $\phi$ sampled from the distribution of physics parameters this system may encounter during the course of operation.
