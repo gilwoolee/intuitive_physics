@@ -75,6 +75,7 @@ which serves as a gating function for an ensemble of $\phi$-dependent policies, 
 We model $g$ as a network capable of modeling evolving state change, e.g. Recurrent Neural Networks or Temporal Convolutional Networks. At the low level, we train an ensemble of $N$ policies, where each policy is trained with $\phi$ sampled from the distribution of physics parameters this system may encounter during the course of operation.
 
 \section{Background}
+Our work is closely related to QMDP~\cite{littman1995learning, karkus2017qmdp} which is an approximation for POMDP. QMDP approximates POMDP by assuming fully-observable MDP after 1-step, and approximating the Q-value at the current belief state $b(s)$ as $Q_a(b) =\sum_s b(s)Q_{MDP}(s, a)$. In our problem setup, we have a belief over the physics parameters $\phi$ of the MDP, $b(\phi)$, and we compute the policy $Q_a(s;b) = \sum_\phi b(\phi)Q_{MDP}(s,a;\phi)$.
 
 
 \bibliography{intuitive_physics}
