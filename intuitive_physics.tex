@@ -67,23 +67,20 @@ V^*(s, \phi) = \max_a \mathbb{E} \bigg[R(s, a, \phi) + \gamma \sum_{s', \phi'}P(
 \end{equation}
 This formualtion is often refered as Bayes-Adaptive Reinforcement Learning (BARL)~\cite{ghavamzadeh2015bayesian}.
 
-We make two simplifications to BARL formulation. First, we assume that the dynamics of $s'$ and $\phi'$ are independent given $P(s, \phi, a)$, i.e.
+We make a simplification to BARL formulation. We assume that the dynamics of $s'$ and $\phi'$ are independent given $P(s, \phi, a)$, i.e.
 \begin{equation*}
 P(s',\phi'|s, \phi, a) = P(s'|s, \phi, a)\cdot P(\phi'|s, \phi, a).
 \end{equation*}
-Second, we assume that $\phi$ changes slowly w.r.t. the system such that an optimal policy for a fixed $\phi,$
-$\pi_{\phi}$, is a reasonable short-term approximation of the long-term optimal policy.
-
-Above two assumptions allow us to simplify BARL with a gated ensemble policy learning method. At the high-level, we have a gating network that determines the best estimate of the physics parameters at time $t$,
+This assumption allows us to simplify BARL with a gated ensemble policy learning method. At the high-level, we have a gating network that determines the \emph{belief} of the physics parameters at time $t$,
 \begin{align*}
-P(\phi_t) = g(s_{t-1}, \phi_{t-1}, a_{t-1})
+b(\phi_t) = P(\phi_t|s_{t-1}, \phi_{t-1}, a_{t-1})
 \end{align*}
-which serves as a gating function for an ensemble of $\phi$-dependent policies, i.e.
-\begin{align*}
- \pi &= \argmax_{\pi} \mathbb{E}_{\phi \sim b(\phi)} \bigg[R(s, a, \phi) + \gamma \sum_{s', \phi'}P(s',\phi'|s, \phi, a)V^*(s', \phi') \bigg]
-\end{align*}
+which is then used to compute the best policy from an ensemble of $\phi$-dependent optimal policies, i.e., $\pi^*(\cdot;\phi)$ and $V^*(\cdot;\phi)$ are computed with typical RL algorithms for MDPs. Then the remaining task is to compute the one-step best action $a$:
+\begin{align}\label{eq:barl}
+ a^* &= \argmax_{a} \mathbb{E}_{\phi \sim b(\phi)} \bigg[R(s, a, \phi) + \gamma \sum_{s', \phi'}P(s',\phi'|s, \phi, a)V^*(s', \phi') \bigg]
+\end{align}
 
-We model $g$ as a network capable of modeling evolving state change, e.g. Recurrent Neural Networks or Temporal Convolutional Networks. At the low level, we train an ensemble of $N$ policies, where each policy is trained with $\phi$ sampled from the distribution of physics parameters this system may encounter during the course of operation.
+We model $b_\phi$ as a network capable of modeling evolving state change, e.g. Recurrent Neural Networks, or as a Bayes filter. At the low level, we plan to discretize $\Phi$ and have one actor-critic network per a discretized value of $\phi$: each critic estimates $V^*(\cdot;\phi)$ and each actor has an optimal policy for a particular discretized value of $\pi^*(\cdot;\phi)$. Given $b_\phi$ and the set of actor-critic networks, it is straightforward to compute (\ref{eq:barl}).
 
 \section{Background}
 Our work is closely related to QMDP~\cite{littman1995learning, karkus2017qmdp} which is an approximation for POMDP. QMDP approximates POMDP by assuming fully-observable MDP after 1-step, and approximating the Q-value at the current belief state $b(s)$ as $Q_a(b) =\sum_s b(s)Q_{MDP}(s, a)$. In our problem setup, we have a belief over the physics parameters $\phi$ of the MDP, $b(\phi)$, and we compute the policy $Q_a(s;b) = \sum_\phi b(\phi)Q_{MDP}(s,a;\phi)$.
