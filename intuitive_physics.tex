@@ -34,12 +34,15 @@
 % on the second line, try using \AND instead of \And before the third
 % author name.
 
-\author{Gilwoo Lee \\
-  \texttt{gilwoo@cs.uw.edu} \\
+\author{
+  Gilwoo Lee \\ \texttt{gilwoo@cs.uw.edu} \\
   %% examples of more authors
   \And
-  Jeongseok Lee \\
-  \texttt{jslee02@cs.uw.edu}
+  Jeongseok Lee \\ \texttt{jslee02@cs.uw.edu} \\
+  \And
+  Brian Hou \\ \texttt{bhou@cs.uw.edu} \\
+  \And
+  Adtiya Vamsikrishna \\ \texttt{adityavk@cs.uw.edu} \\
 }
 
 \begin{document}
@@ -48,11 +51,11 @@
 \maketitle
 
 \section{Introduction}
-While reinforcement learning is capable of controlling complex autonomous systems, RL algorithms typically require huge amounts of data and can overfit to a particular task or to be prone to disturbance. One of main challenges that needs to be addressed is train a policy robust to various model uncertainties and disturbances. In this project, we aim to address this challenge via an ensemble policy for Bayes-Adaptive Reinforcement Learning~\cite{ghavamzadeh2015bayesian}.
+While reinforcement learning is capable of controlling complex autonomous systems, RL algorithms typically require huge amounts of data, can overfit to a particular task, or may learn brittle policies that are prone to disturbances. One of the main challenges that needs to be addressed is train a policy that is robust to various model uncertainties and disturbances. In this project, we aim to address this challenge via an ensemble policy for Bayes-Adaptive Reinforcement Learning~\cite{ghavamzadeh2015bayesian}.
 
-We assume that there exists a latent physics variable $\phi$ which determines the transition function of the underlying MDP, i.e. the transition function  $P(s',\phi' |s, \phi, a)$ is now a function of state, action, and $\phi$. We would like to learn a policy which maximizes the long term reward given $\phi$. Formally, this is called Bayes-Adaptive MDP~\cite{ghavamzadeh2015bayesian, guez2012efficient}, defined by a tuple $<\mathcal{S}', \mathcal{A}, P', P_0', R'>$ where
+We assume that there exists a latent physics variable $\phi$ which determines the transition function of the underlying MDP, i.e. the transition function  $P(s',\phi' |s, \phi, a)$ is now a function of state, action, and $\phi$. We would like to learn a policy which maximizes the long term reward given $\phi$. Formally, this is called a Bayes-Adaptive MDP~\cite{ghavamzadeh2015bayesian, guez2012efficient}, defined by a tuple $<\mathcal{S}', \mathcal{A}, P', P_0', R'>$ where
 \begin{itemize}
-\item $\mathcal{S'} = \mathcal{S}\times \Phi$ is the set of (states, physics variable),
+\item $\mathcal{S'} = \mathcal{S}\times \Phi$ is the set of hyper-states (states, physics variable),
 \item $\mathcal{A}$ is the set of actions,
 \item $P(\cdot|s, \phi, a)$ is the transition function between hyper-states, conditioned
 on action a being taken in hyper-state $(s, \phi)$,
@@ -65,13 +68,13 @@ We would like to find the optimal policy for the following Bellman equaton:
 \begin{equation}\label{eq:rl}
 V^*(s, \phi) = \max_a \mathbb{E} \bigg[R(s, a, \phi) + \gamma \sum_{s', \phi'}P(s',\phi'|s, \phi, a)V^*(s', \phi') \bigg]
 \end{equation}
-This formualtion is often refered as Bayes-Adaptive Reinforcement Learning (BARL)~\cite{ghavamzadeh2015bayesian}.
+This formulation is often referred to as Bayes-Adaptive Reinforcement Learning (BARL)~\cite{ghavamzadeh2015bayesian}.
 
-We make a simplification to BARL formulation. We assume that the dynamics of $s'$ and $\phi'$ are independent given $P(s, \phi, a)$, i.e.
+We make a simplification to the BARL formulation. We assume that the dynamics of $s'$ and $\phi'$ are independent given $P(s, \phi, a)$, i.e.
 \begin{equation*}
 P(s',\phi'|s, \phi, a) = P(s'|s, \phi, a)\cdot P(\phi'|s, \phi, a).
 \end{equation*}
-This assumption allows us to simplify BARL with a gated ensemble policy learning method. At the high-level, we have a gating network that determines the \emph{belief} of the physics parameters at time $t$,
+This assumption allows us to simplify BARL with a gated ensemble policy learning method. At a high level, we have a gating network that determines the \emph{belief} of the physics parameters at time $t$,
 \begin{align*}
 b(\phi_t) = P(\phi_t|s_{t-1}, \phi_{t-1}, a_{t-1})
 \end{align*}
@@ -80,7 +83,7 @@ which is then used to compute the best policy from an ensemble of $\phi$-depende
  a^* &= \argmax_{a} \mathbb{E}_{\phi \sim b(\phi)} \bigg[R(s, a, \phi) + \gamma \sum_{s', \phi'}P(s',\phi'|s, \phi, a)V^*(s', \phi') \bigg]
 \end{align}
 
-We model $b_\phi$ as a network capable of modeling evolving state change, e.g. Recurrent Neural Networks, or as a Bayes filter. At the low level, we plan to discretize $\Phi$ and have one actor-critic network per a discretized value of $\phi$: each critic estimates $V^*(\cdot;\phi)$ and each actor has an optimal policy for a particular discretized value of $\pi^*(\cdot;\phi)$. Given $b_\phi$ and the set of actor-critic networks, it is straightforward to compute (\ref{eq:barl}).
+We model $b_\phi$ as a network capable of modeling evolving state change, e.g. Recurrent Neural Networks, or as a Bayes filter. At the low level, we plan to discretize $\Phi$ and have one actor-critic network per discretized value of $\phi$: each critic estimates $V^*(\cdot;\phi)$ and each actor has an optimal policy for a particular discretized value of $\pi^*(\cdot;\phi)$. Given $b_\phi$ and the set of actor-critic networks, it is straightforward to compute (\ref{eq:barl}).
 
 \section{Background}
 Our work is closely related to QMDP~\cite{littman1995learning, karkus2017qmdp} which is an approximation for POMDP. QMDP approximates POMDP by assuming fully-observable MDP after 1-step, and approximating the Q-value at the current belief state $b(s)$ as $Q_a(b) =\sum_s b(s)Q_{MDP}(s, a)$. In our problem setup, we have a belief over the physics parameters $\phi$ of the MDP, $b(\phi)$, and we compute the policy $Q_a(s;b) = \sum_\phi b(\phi)Q_{MDP}(s,a;\phi)$.
@@ -88,10 +91,15 @@ Our work is closely related to QMDP~\cite{littman1995learning, karkus2017qmdp} w
 The BAMDP formulation is also similar to POMDP formulation used in POMDP-lite~\cite{chen2016pomdp} which assumes that the hidden state variables are are constant or only change deterministically. In our case, the hidden state variables correspond to the physics parameters $\phi$. The authors of POMDP-lite have shown that such formulation is ``equivalent to a set of fully observable Markov decision processes indexed by a hidden parameter''~\cite{chen2016pomdp}, which, in our case, could be viewed as a discretization of $\phi$.
 
 \section{Platform}
-We plan to simulate with a set of canonical examples such as inverted pendulum, 2D car driving, hopper, and do a real-robot experiments with RACECAR, a RC-car robot actively developed in Personal Robotics Lab.
+First, we plan to validate our approach in simulation with a set of canonical examples such as the inverted pendulum, reacher, and hopper. We also plan to do physical robot experiments on the RACECAR platform to learn policies that are robust to different and poorly-estimated friction parameters between the car's wheels and the ground.
 
 \section{Milestones}
-
+\begin{itemize}
+\item April 30 -- Set up all simulation environments in DART (including a kinematic simulation for the RACECAR)
+\item May 15   -- Test algorithm on inverted pendulum, hopper, etc. in simulation
+\item May 22   -- Test algorithm on RACECAR in simulation
+\item May 31   -- Run experiments on the real RACECAR
+\end{itemize}
 
 \bibliography{intuitive_physics}
 
