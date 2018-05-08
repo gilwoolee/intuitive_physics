@@ -101,7 +101,7 @@ The BAMDP formulation is also similar to POMDP formulation used in POMDP-lite~\c
 \section{Milestones}
 We have proposed the following milestones in our proposal:
 \begin{itemize}
-\item April 30 -- Set up all simulation environments in DART~\cite{lee2018dart} (including a kinematic simulation for the RACECAR)
+\item[\checkmark] April 30 -- Set up all simulation environments in DART~\cite{lee2018dart} (including a kinematic simulation for the RACECAR)
 \item May 15   -- Test algorithm on simulated OpenAI problems
 \item May 22   -- Test algorithm on RACECAR in simulation
 \item May 31   -- Run experiments on the real RACECAR
@@ -126,15 +126,15 @@ We are working on both simulation~(\figref{subfig:simcar})\footnote{video: \url{
 \caption{RACECAR}
 \end{figure*}
 
-The RACECAR is controlled by torque of the front wheels and position and velocity control of the steering angle. The goal of the task is to track a trajectory as fast as it can. The physics parameters we plan to change are mass of the car and friction coefficient between the car and the road, both of which affect the car dynamics significantly.
+The RACECAR is controlled by torque on the front wheels, and position and velocity inputs over the steering angle. The goal of the task is to track a given trajectory while minimizing the time of traversal. The physics parameters we plan to change are mass of the car and friction coefficient between the car and the road, both of which affect the vehicle dynamics significantly.
 
-In the real-robot experiment, the state of the RACECAR will be estimated by lidar observations, localized via SLAM techniques. While this does not provide exact state values, we take the maximum likely estimate as the current state, and only treat the physics parameters as hidden. A more theoretically appropriate approach would be to treat state as partially-observable, but such a treatment requires us to solve full POMDP instead of the simplified BARL we plan to explore in this project. We believe that given frequent updates and accurate estimates of the state, the maximum likely state will be a reasonable approximation for the purpose of this project.
+In the real-robot experiment, the state of the RACECAR will be estimated by LIDAR observations, localized via SLAM techniques. While this does not provide exact state values, we take the most likely estimate as the current state, and only treat the physics parameters as hidden. A more theoretically appropriate approach would be to treat state as partially-observable, but such a treatment requires us to solve full POMDP instead of the simplified BARL we plan to explore in this project. We believe that given frequent updates and accurate estimates of the state, the most likely state will be a reasonable approximation for the purpose of this project.
 
 \section{Experiments}
 
-We have setup a set of simulated examples and a set of RL algorithms to be utilized in our ensemble approach. For simualted examples, we have the following agents: \textbf{ant, reacher, swimmer, half-cheetah}, each with a predefined reward function defined similar to those given by OpenAI Gym~\cite{openai}. We are utilizing TRPO~\cite{trpo}, VPG, DDPG~\cite{ddpg} provide by \texttt{rllab}~\cite{duan2016benchmarking} as a set of algorithms to be utilized in our ensemble approach. In addition, we plan to implement PPO and a PID controller for RACECAR.
+We have setup a set of simulated examples and a set of RL algorithms to be utilized in our ensemble approach. For simulated examples, we have the following agents: \textbf{ant, reacher, swimmer, half-cheetah}, each with a predefined reward function defined similar to those given by OpenAI Gym~\cite{openai}. We are utilizing TRPO~\cite{trpo}, VPG, DDPG~\cite{ddpg} provide by \texttt{rllab}~\cite{duan2016benchmarking} as a set of algorithms to be utilized in our ensemble approach. In addition, we plan to implement PPO and a PID controller for RACECAR.
 
-Our algorithm will be compared against two classes of algorithms: (1) sample-based algorithms which chooses an MDP and commits to this policy for a fixed horizon, and (2) ensemble algorithms which trains a policy over an ensemble of MDP models. A greedy algorithm which chooses the maximum-likely MDP, or one that samples from a posterior distribution of MDPs given previous observations (e.g. Posterior Sampling Reinforcement Learning \cite{psrl}) would fall into the former, and EPOpt\cite{rajeswaran2016epopt} and Ensemble-CIO~\cite{ensemble-cio} would fall into the latter.
+Our algorithm will be compared against two classes of algorithms: (1) sample-based algorithms which chooses an MDP and commit to this policy for a fixed horizon, and (2) ensemble algorithms which train a policy over an ensemble of MDP models. A greedy algorithm which chooses the maximum-likely MDP, or one that samples from a posterior distribution of MDPs given previous observations (e.g. Posterior Sampling Reinforcement Learning \cite{psrl}) would fall into the former, and EPOpt\cite{rajeswaran2016epopt} and Ensemble-CIO~\cite{ensemble-cio} would fall into the latter.
 
 We are currently in the process of setting up baseline algorithms which may be used for direct comparison or as internal policy update algorithms for each of MDP in our algorithm.
 
