@@ -1,0 +1,52 @@
+\documentclass[tikz]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{calc,shapes,arrows,positioning,fit}
+\usetikzlibrary{intersections}
+\usetikzlibrary{backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.13}
+\usepackage{pgfplotstable}
+\usepgfplotslibrary{groupplots}
+
+\definecolor{HighlightBG}{rgb}{1.0,0.9,0.9}
+\definecolor{Highlight}{rgb}{1.0,0.141,0.141}
+\definecolor{Other}{rgb}{0.75, 0.75, 0.75}
+% \def\ymin{-0.3}
+% \def\ymax{2.6}
+\def\xmin{0}
+\def\xmax{350}
+
+\begin{document}
+
+\pgfplotstableread[col sep=comma]{data/cheetah_training.csv}{\data}
+
+\begin{tikzpicture}
+
+\pgfmathsetmacro\plotw{8cm}
+\pgfmathsetmacro\ploth{4cm}
+\begin{axis}[
+  legend pos = south east,
+  % width=\plotw, height=\ploth,
+  no markers,
+  every axis plot/.append style={ultra thick},
+  every axis plot/.append style={line width=2pt},
+  axis line style = thin,
+  xlabel={Iterations},
+  ylabel={Mean return},
+  x label style={at={(axis description cs:1.135, 0.0)}, anchor=north},
+  y label style={at={(axis description cs:-0.06, 0.5)}, anchor=south},
+  axis lines=left,
+  xmin=\xmin, xmax=\xmax
+  % , ymax=\ymax, ymin=\ymin,
+  % xtick={1, 2, 3, 4, 5, 6, 7},
+  % ytick={0, 1, 2}]
+  ]
+
+  \addplot+[color=Highlight, mark=none] table[ x index = {0}, y index = {1}]{\data};
+  \addplot+[color=Other, mark=none] table[ x index = {0}, y index = {2}]{\data};
+  \addplot+[color=Other, mark=none] table[ x index = {0}, y index = {3}]{\data};
+\end{axis}
+
+\end{tikzpicture}
+
+\end{document}

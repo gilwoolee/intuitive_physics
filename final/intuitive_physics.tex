@@ -75,10 +75,11 @@ on action $a$ being taken in hyper-state $(s, \phi)$,
 taken in hyper-state $(s,\phi)$.
 \end{itemize}
 
-We would like to find the optimal policy for the following Bellman equaton:
+We would like to find the Bayes-optimal policy for the following Bellman equaton:
 \begin{equation}\label{eq:rl}
-V^*(s, \phi) = \max_a \mathbb{E} \bigg[R(s, a, \phi) + \gamma \sum_{s', \phi'}P(s',\phi'|s, \phi, a)V^*(s', \phi') \bigg].
+V^*(b, s) = \max_a \bigg\{R(b, s, a) + \gamma \sum_{s'}P(s'|b, s, a)V^*(b', s') \bigg\}.
 \end{equation}
+where $b$ is the belief over the set of latent physics parameters $\phi \in \Phi$.
 
 We make a simplification to the BARL formulation. We assume that the latent variable $\phi$ is either constant or the rate of change is slow enough that approximating the long-term value with a determinized $\phi$ is a reasonable short-term approximation for choosing one-step action, i.e. we can treat $V^*(s_t, \phi_t) \approx V^*(s_t, \phi_{t:\infty})$ for the purpose of one-step Bellman update.
 
@@ -106,29 +107,6 @@ We have proposed the following milestones in our proposal:
 \item May 22   -- Test algorithm on RACECAR in simulation
 \item May 31   -- Run experiments on the real RACECAR
 \end{itemize}
-
-\section{RACECAR}
-We are working on both simulation~(\figref{subfig:simcar})\footnote{video: \url{https://youtu.be/9uoietve9S4}} and real-robot~(\figref{subfig:racecar}) platform for the RACECAR.
-\begin{figure*}
-\centering
- \begin{subfigure}[b]{0.30\textwidth}
-   \includegraphics[width=1\linewidth]{figs/racecar_sim.png}
-   \caption{Simulation in DART}
-   \label{subfig:simcar}
- \end{subfigure}
- \hspace{2.5cm}
- \begin{subfigure}[b]{0.30\textwidth}
-   \includegraphics[width=1\linewidth]{figs/racecar.jpg}
-   \caption{RACECAR}
-   \label{subfig:racecar}
- \end{subfigure}
- \label{fig:racecar}
-\caption{RACECAR}
-\end{figure*}
-
-The RACECAR is controlled by torque on the front wheels, and position and velocity inputs over the steering angle. The goal of the task is to track a given trajectory while minimizing the time of traversal. The physics parameters we plan to change are mass of the car and friction coefficient between the car and the road, both of which affect the vehicle dynamics significantly.
-
-In the real-robot experiment, the state of the RACECAR will be estimated by LIDAR observations, localized via SLAM techniques. While this does not provide exact state values, we take the most likely estimate as the current state, and only treat the physics parameters as hidden. A more theoretically appropriate approach would be to treat state as partially-observable, but such a treatment requires us to solve full POMDP instead of the simplified BARL we plan to explore in this project. We believe that given frequent updates and accurate estimates of the state, the most likely state will be a reasonable approximation for the purpose of this project.
 
 \section{Experiments}
 
