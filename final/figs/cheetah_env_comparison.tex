@@ -33,7 +33,7 @@
 \begin{document}
 \begin{tikzpicture}
 \begin{axis}[
-  width=12cm, height=12cm,
+  width=9cm, height=12cm,
   bar width=32pt,
   ymin=0, ymax=550,
   axis x line=center,
@@ -46,7 +46,7 @@
   y tick label style={font=\fontsize{15}{0}\selectfont},
   x tick label style={font=\fontsize{15}{0}\selectfont},
 %  enlargelimits=true,
-  enlarge x limits=0.15,
+  enlarge x limits=0.25,
   ylabel={Average Return}]
   \pgfplotstablegetelem{1}{1}\of\data
   \addplot[ybar,color=bayes_c,fill] coordinates {
@@ -57,9 +57,6 @@
   \pgfplotstablegetelem{1}{3}\of\data
   \addplot[ybar,color=qmdp_c,fill] coordinates {
         (QMDP,\pgfplotsretval)};
-  \pgfplotstablegetelem{1}{4}\of\data
-  \addplot[ybar,color=best_c,fill] coordinates {
-        (Best,\pgfplotsretval)};
     
   \pgfplotstablegetelem{1}{1}\of\data
   \addplot+[
@@ -107,22 +104,6 @@
   coordinates {
   	(QMDP,\pgfplotsretval) +- 
   	\pgfplotstablegetelem{2}{3}\of\data
-  	(0,\pgfplotsretval) };
-  
-  \pgfplotstablegetelem{1}{4}\of\data
-  \addplot+[
-  black,
-  only marks,
-  mark=*,
-  mark options={black, scale=1.0},
-  error bars/.cd,
-  error bar style={solid},
-  y dir=both,
-  y explicit
-  ]
-  coordinates { 
-  	(Best,\pgfplotsretval) +- 
-  	\pgfplotstablegetelem{2}{4}\of\data
   	(0,\pgfplotsretval) };
 \end{axis}
 
