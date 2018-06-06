@@ -66,6 +66,81 @@
   \pgfplotstablegetelem{1}{4}\of\data
   \addplot[ybar,color=best_c,fill] coordinates {
         (Best,\pgfplotsretval)};
+
+  \pgfplotstablegetelem{1}{1}\of\data
+  \addplot+[
+  black,
+  only marks,
+  mark=*,
+  mark options={black, scale=1.0},
+  error bars/.cd,
+  y dir=both,
+  y explicit
+  ]
+  coordinates {
+  	(Bayes,\pgfplotsretval) +-
+  	\pgfplotstablegetelem{2}{1}\of\data
+  	(0,\pgfplotsretval) };
+  
+  \pgfplotstablegetelem{1}{0}\of\data
+  \addplot+[
+  black,
+  only marks,
+  mark=*,
+  mark options={black, scale=1.0},
+  error bars/.cd,
+  y dir=both,
+  y explicit
+  ]
+  coordinates {
+  	(BMP,\pgfplotsretval) +-
+  	\pgfplotstablegetelem{2}{0}\of\data
+  	(0,\pgfplotsretval) };
+  
+  \pgfplotstablegetelem{1}{2}\of\data
+  \addplot+[
+  black,
+  only marks,
+  mark=*,
+  mark options={black, scale=1.0},
+  error bars/.cd,
+  y dir=both,
+  y explicit
+  ]
+  coordinates {
+  	(EPOpt,\pgfplotsretval) +-
+  	\pgfplotstablegetelem{2}{2}\of\data
+  	(0,\pgfplotsretval) };
+  
+  \pgfplotstablegetelem{1}{3}\of\data
+  \addplot+[
+  black,
+  only marks,
+  mark=*,
+  mark options={black, scale=1.0},
+  error bars/.cd,
+  y dir=both,
+  y explicit
+  ]
+  coordinates {
+  	(QMDP,\pgfplotsretval) +- 
+  	\pgfplotstablegetelem{2}{3}\of\data
+  	(0,\pgfplotsretval) };
+  
+  \pgfplotstablegetelem{1}{4}\of\data
+  \addplot+[
+  black,
+  only marks,
+  mark=*,
+  mark options={black, scale=1.0},
+  error bars/.cd,
+  y dir=both,
+  y explicit
+  ]
+  coordinates { 
+  	(Best,\pgfplotsretval) +- 
+  	\pgfplotstablegetelem{2}{4}\of\data
+  	(0,\pgfplotsretval) };
 \end{axis}
 
 \end{tikzpicture}
