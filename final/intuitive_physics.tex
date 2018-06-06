@@ -6,7 +6,8 @@
 %
 % to avoid loading the natbib package, add option nonatbib:
 
-\usepackage[nonatbib, final]{nips_2017}
+\PassOptionsToPackage{numbers, compress}{natbib}
+\usepackage[final]{nips_2017}
 
 % to compㅁle a camera-ready version, add the [final] option, e.g.:
 \usepackage[utf8]{inputenc} % allow utf-8 input
@@ -63,29 +64,43 @@
 
 \maketitle
 
-%    \begin{abstract}
-%    lalala abstract!
-%    \end{abstract}
+% \begin{abstract}
+% lalala abstract!
+% \end{abstract}
 
 \section{Introduction}
-Learning optimal behaviors and decision-making in the face of uncertainty and disturbances has been a major research area of interest to the robotics community. 
-Although model-free deep reinforcement learning algorithms have shown tremendous success in a wide range of tasks such as simulated control problems, and games like Go and Poker, they face fundamental challenges in their application to physical control systems like robots. 
-The need for large amounts of data and entailing huge learning times, high sample complexity and issues of safety in gathering data from the real world are some of the major barriers to break to directly apply these methods on real systems.
+Although model-free deep reinforcement learning algorithms have shown tremendous success in a wide range of tasks, such as simulated control problems in OpenAI Gym\cite{openai-gym} and games like Go\cite{alphago}, they face fundamental challenges in their application to physical control problems on robotic hardware.
+The high sample complexity of current methods results in long training periods if applied directly to hardware, even for simple grasping tasks\cite{levine2016armfarm}.
+Furthermore, the safety of the robot or surrounding environment when gathering data from the real world may be difficult to guarantee while the policy is training.
 
-Model-based reinforcement learning techniques offer an opportunity to overcome these issues by taking advantage of simulations of the real systems. The primary challenge, however, with model-based techniques is the apparent discrepancy between the simulation models of the physical system. Simplified models, inaccurate or uncertain parameters that govern the dynamics of the model, and other unmodelled disturbances and noise can render the policies learned for the model, brittle. Identifying the need for robustness, in this work, we propose a model-based algorithm to learn an ensemble policy for Bayes-Adaptive Reinforcement Learning that elegantly handles model uncertainties and disturbances. 
-<Mention the key idea and the contributions>
+Model-based reinforcement learning techniques offer an opportunity to overcome these issues by taking advantage of simulations of the real systems, which can generate training data faster than real time.
+The primary challenge with model-based techniques is the discrepancy between simulation and the real world.
+Simplified models, inaccurate or uncertain parameters that govern the dynamics of the model, and other unmodeled disturbances and noise can render the policies learned on the simulated model ineffective on the real system.
+
+We propose a model-based algorithm that learns an ensemble policy for Bayes-adaptive reinforcement learning that is robust to model uncertainty and disturbances.
+Although the real system's exact physical parameters are unknown, we can maintain a belief distribution over those parameters and provide this belief as an additional input to the policy.
+This enables the learned policy to be bold when confident in its model and cautious when there is high model uncertainty.
 
 \section{Related Work}
-Our work is closely related to QMDP~\cite{littman1995learning, karkus2017qmdp} which is an approximation for POMDP. QMDP approximates POMDP by assuming fully-observable MDP after 1-step, and approximating the Q-value at the current belief state $b(s)$ as $Q_a(b) =\sum_s b(s)Q_{\text{MDP}}(s, a)$. The algorithm requires access to the (approximate) optimal Q-functions of the MDPs.  Although it is assured to perform well amongst these MDPs for which the algorithm has access to the optimal Q-functions, the assumption of determinized belief after 1-step breaks Bayes-optimality.
+Our work is closely related to QMDP~\cite{littman1995learning, karkus2017qmdp} which is a Q-value approximation method for Partially Observable Markov Decision Processes (POMDPs).
+QMDP assumes a fully-observable MDP after one action by approximating the Q-value at the current belief state $b(s)$ as a weighted average over the fully-observable MDP's Q-values $Q_a(b) = \sum_s b(s)Q_{\text{MDP}}(s, a)$.
+The algorithm requires access to the (approximate) Q-function for the MDP.
+QMDP performs surprisingly well for many problems, but determinizing the belief distribution after one timestep breaks Bayes-optimality.
 
-Robustness to model uncertainty has also been addressed by EPOpt \cite{rajeswaran2016epopt} which learns a policy that maximized the worst-case performance across multiple MDPs. However, as common with min-max techniques, EPOpt can be quite conservative in its policy and therefore far from optimal, especially when the model's possible parameter-space is large. Our work closes the gap in EPOpt by maintaining a belief over the MDPs trained over to maintain the balance between optimality and robustness.
-
-Another recent work, UP-OSI, trains on multple possible MDPs and utilizes online system identification to learn a policy that handles model uncertainty and sudden changes in the environment. However, without a notion of belief, the algorithm is prone to aggressively execute policies that might not be conservative under uncertainty.
 
 %In our problem setup, we have a belief over the physics parameters $\phi$ of the MDP, $b(\phi)$, and we compute the policy $Q_a(s;b) = \sum_\phi b(\phi)Q_{\text{MDP}}(s,a;\phi)$.
 %
-The BAMDP formulation that we consider is also similar to POMDP formulation used in POMDP-lite~\cite{chen2016pomdp} which assumes that the hidden state variables are constant or only change deterministically. In our case, the hidden state variables correspond to the physics parameters $\phi$. The authors of POMDP-lite have shown that such formulation is ``equivalent to a set of fully observable Markov decision processes indexed by a hidden parameter''~\cite{chen2016pomdp}, which, in our case, is a discretization of $\phi$.
+The BAMDP formulation that we consider is also similar to the POMDP formulation used in POMDP-lite~\cite{chen2016pomdp}, which assumes that the hidden state variables remain constant or only change deterministically.
+In our case, the hidden state variables correspond to the physics parameters $\phi$.
+Chen et al. show that this formulation is ``equivalent to a set of fully observable Markov decision processes indexed by a hidden parameter'', which, in our case, is a discretization of $\phi$.
 
+Robustness to model uncertainty has also been addressed by EPOpt\cite{rajeswaran2016epopt}, which learns a policy that maximizes the worst-case performance across multiple sampled MDPs.
+However, as is common with min-max techniques, EPOpt can be quite conservative (and therefore far from optimal) in its policy, especially when the model's possible parameter-space is large.
+Our work closes this gap in EPOpt by maintaining a belief over the training MDPs to balance between optimality and robustness.
+
+Another recent approach to model uncertainty is UP-OSI\cite{yu2017uposi}, which utilizes online system identification to estimate the physical parameters of the system.
+However, UP-OSI only uses the mean estimate of those parameters as an additional input to the policy.
+Without a notion of belief and uncertainty in its parameter estimates, UP-OSI is prone to aggressively executing policies without being conservative toward remaining model uncertainty.
 
 \section{Methods and Algorithm Description}
 
