@@ -63,53 +63,42 @@
 
 \maketitle
 
-    \begin{abstract}
-    lalala abstract!
-    \end{abstract}
+%    \begin{abstract}
+%    lalala abstract!
+%    \end{abstract}
 
 \section{Introduction}
 Learning optimal behaviors and decision-making in the face of uncertainty and disturbances has been a major research area of interest to the robotics community. 
 Although model-free deep reinforcement learning algorithms have shown tremendous success in a wide range of tasks such as simulated control problems, and games like Go and Poker, they face fundamental challenges in their application to physical control systems like robots. 
 The need for large amounts of data and entailing huge learning times, high sample complexity and issues of safety in gathering data from the real world are some of the major barriers to break to directly apply these methods on real systems.
 
-Model-based reinforcement learning techniques offer an opportunity to overcome these issues by taking advantage of simulations of the real systems. The primary challenge, however, with model-based techniques is the apparent discrepancy between the simulation models of the physical system. Simplified models, inaccurate or uncertain parameters that govern the dynamics of the model, and other unmodelled disturbances and noise can render the policies learned for the model, brittle. Identifying the need for robustness, in this work, we propose a model-based algorithm to learn an ensemble policy for Bayes-Adaptive Reinforcement Learning that elegantly handles model uncertainties and disturbances.
-
-
+Model-based reinforcement learning techniques offer an opportunity to overcome these issues by taking advantage of simulations of the real systems. The primary challenge, however, with model-based techniques is the apparent discrepancy between the simulation models of the physical system. Simplified models, inaccurate or uncertain parameters that govern the dynamics of the model, and other unmodelled disturbances and noise can render the policies learned for the model, brittle. Identifying the need for robustness, in this work, we propose a model-based algorithm to learn an ensemble policy for Bayes-Adaptive Reinforcement Learning that elegantly handles model uncertainties and disturbances. 
+<Mention the key idea and the contributions>
 
 \section{Related Work}
+Our work is closely related to QMDP~\cite{littman1995learning, karkus2017qmdp} which is an approximation for POMDP. QMDP approximates POMDP by assuming fully-observable MDP after 1-step, and approximating the Q-value at the current belief state $b(s)$ as $Q_a(b) =\sum_s b(s)Q_{\text{MDP}}(s, a)$. The algorithm requires access to the (approximate) optimal Q-functions of the MDPs.  Although it is assured to perform well amongst these MDPs for which the algorithm has access to the optimal Q-functions, the assumption of determinized belief after 1-step breaks Bayes-optimality.
 
-\section{Algorithm and System Description}
+Robustness to model uncertainty has also been addressed by EPOpt \cite{rajeswaran2016epopt} which learns a policy that maximized the worst-case performance across multiple MDPs. However, as common with min-max techniques, EPOpt can be quite conservative in its policy and therefore far from optimal, especially when the model's possible parameter-space is large. Our work closes the gap in EPOpt by maintaining a belief over the MDPs trained over to maintain the balance between optimality and robustness.
 
-\section{Analysis}
+Another recent work, UP-OSI, trains on multple possible MDPs and utilizes online system identification to learn a policy that handles model uncertainty and sudden changes in the environment. However, without a notion of belief, the algorithm is prone to aggressively execute policies that might not be conservative under uncertainty.
 
-\section{Results}
-
-\section{Future Work}
-
-
-
+%In our problem setup, we have a belief over the physics parameters $\phi$ of the MDP, $b(\phi)$, and we compute the policy $Q_a(s;b) = \sum_\phi b(\phi)Q_{\text{MDP}}(s,a;\phi)$.
+%
+The BAMDP formulation that we consider is also similar to POMDP formulation used in POMDP-lite~\cite{chen2016pomdp} which assumes that the hidden state variables are constant or only change deterministically. In our case, the hidden state variables correspond to the physics parameters $\phi$. The authors of POMDP-lite have shown that such formulation is ``equivalent to a set of fully observable Markov decision processes indexed by a hidden parameter''~\cite{chen2016pomdp}, which, in our case, is a discretization of $\phi$.
 
 
-While reinforcement learning is capable of controlling complex autonomous systems, RL algorithms typically require huge amounts of data, can overfit to a particular task, or may learn brittle policies that are prone to disturbances. One of the main challenges that needs to be addressed is to train a policy that is robust to various model uncertainties and disturbances. In this project, we aim to address this challenge via an ensemble policy for Bayes-Adaptive Reinforcement Learning~\cite{ghavamzadeh2015bayesian}.
+\section{Methods and Algorithm Description}
 
-We model $b_\phi$ as a network capable of modeling evolving state change, e.g., Recurrent Neural Networks, or as a Bayes filter. At the low level, we plan to discretize $\Phi$ and have one actor-critic network per discretized value of $\phi$: each critic estimates $V^*(\cdot;\phi)$ and each actor has an optimal policy for a particular discretized value of $\pi^*(\cdot;\phi)$. Given $b_\phi$ and the set of value-function approximators, it is straightforward to compute (\ref{eq:barl}).
-
-\section{Related Works}
-Our work is closely related to QMDP~\cite{littman1995learning, karkus2017qmdp} which is an approximation for POMDP. QMDP approximates POMDP by assuming fully-observable MDP after 1-step, and approximating the Q-value at the current belief state $b(s)$ as $Q_a(b) =\sum_s b(s)Q_{\text{MDP}}(s, a)$. In our problem setup, we have a belief over the physics parameters $\phi$ of the MDP, $b(\phi)$, and we compute the policy $Q_a(s;b) = \sum_\phi b(\phi)Q_{\text{MDP}}(s,a;\phi)$.
-
-The BAMDP formulation is also similar to POMDP formulation used in POMDP-lite~\cite{chen2016pomdp} which assumes that the hidden state variables are constant or only change deterministically. In our case, the hidden state variables correspond to the physics parameters $\phi$. The authors of POMDP-lite have shown that such formulation is ``equivalent to a set of fully observable Markov decision processes indexed by a hidden parameter''~\cite{chen2016pomdp}, which, in our case, is a discretization of $\phi$.
-
-\newpage
-
-\section{Bayes-Adaptive Reinforcement Learning}
+\subsection{Bayes-Adaptive Reinforcement Learning}
 \begin{figure*}[h!]
-\begin{subfigure}[b]{0.3\columnwidth}
-\includegraphics[width=\linewidth]{figs/model.pdf}
+\begin{subfigure}[b]{0.5\textwidth}
+\centering
+\includegraphics[width=0.5\linewidth]{figs/model.pdf}
 \caption{Graphical Model}
 \end{subfigure}
-\hfill
-\begin{subfigure}[b]{0.65\columnwidth}
-\missingfigure[figwidth=6cm]{Testing a long text string}
+\begin{subfigure}[b]{0.5\textwidth}
+\centering
+\includegraphics[width=0.5\linewidth]{figs/model.pdf}
 \caption{System structure}
 \end{subfigure}
 \end{figure*}
@@ -142,14 +131,21 @@ which is then used to compute the best policy from an ensemble of $\phi$-depende
  a^* &= \argmax_{a} \mathbb{E}_{\phi \sim b(\phi)} \bigg[R(s, a, \phi) + \gamma \sum_{s', \phi'}P(s',\phi'|s, \phi, a)V^{*'}(s', \phi') \bigg].
 \end{align}
 
-\section{Bayes-Adaptive Policy Network}
+The probability of an MDP $\mathcal{M}$, governed by latent physics variable $\phi_{\mathcal{M}}$, generating a trajectory $\tau$ is given by:
+\begin{align}
+P(\mathcal{M} | \tau) &= \frac{1}{Z}P(\tau | \mathcal{M}) \times P(\phi_\mathcal{M}) \nonumber \\
+					  &= \frac{1}{Z}\prod_{t = 0}^{T-1}{P(s = s_{t+1}|s_t, a_t, \phi_\mathcal{M})} \times P(\phi_\mathcal{M})
+\end{align}
+where $Z$ is the normalizing constant that allows the sum of probabilities over all the MDPs to be unity. These probabilities are used to update the belief.
+
+\subsection{Bayes-Adaptive Policy Network}
 
 TODO: Explain how the system works (input to the network, etc.)
 %%\newcommand{\argmin}{\operatornamewithlimits{\arg\min}}
 %
 %
 %------------------------------------------
-% Algorithm 6: Abstract Version
+% Algorithm:
 %------------------------------------------%
 \begin{algorithm}[tb]
 \caption{\texttt{Bayesian-DRL}}
@@ -173,7 +169,23 @@ TODO: Explain how the system works (input to the network, etc.)
 \end{algorithmic}
 \end{algorithm}
 
+\section{Analysis}
 
+\section{Results}
+
+\section{Future Work}
+
+
+
+
+
+%While reinforcement learning is capable of controlling complex autonomous systems, RL algorithms typically require huge amounts of data, can overfit to a particular task, or may learn brittle policies that are prone to disturbances. One of the main challenges that needs to be addressed is to train a policy that is robust to various model uncertainties and disturbances. In this project, we aim to address this challenge via an ensemble policy for Bayes-Adaptive Reinforcement Learning~\cite{ghavamzadeh2015bayesian}.
+%
+%We model $b_\phi$ as a network capable of modeling evolving state change, e.g., Recurrent Neural Networks, or as a Bayes filter. At the low level, we plan to discretize $\Phi$ and have one actor-critic network per discretized value of $\phi$: each critic estimates $V^*(\cdot;\phi)$ and each actor has an optimal policy for a particular discretized value of $\pi^*(\cdot;\phi)$. Given $b_\phi$ and the set of value-function approximators, it is straightforward to compute (\ref{eq:barl}).
+
+\section{Related Works}
+
+\newpage
 
 %\begin{algorithm}[t!]
 % \KwData{this text}
