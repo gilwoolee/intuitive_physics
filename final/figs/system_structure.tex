@@ -3,14 +3,14 @@
 \usetikzlibrary{bayesnet}
 \begin{document}
 
-\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+\tikzstyle{block} = [rectangle, draw,
 text width=5em, text centered, rounded corners, minimum height=2em]
 \tikzstyle{line} = [draw, -latex']
 
 \begin{tikzpicture}[auto]
 
   % Define nodes
-  \node[block] (nn) {Neural Net};
+  \node[block] (nn) {Policy Network};
   \node[obs, right=of nn] (a) {$\mathbf{a}$};
   \node[block, below=0.5cm of a] (w) {World};
   \node[obs, below=0.5cm of w] (o) {$\mathbf{o}$};

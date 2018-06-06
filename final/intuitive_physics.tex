@@ -108,12 +108,12 @@ Without a notion of belief and uncertainty in its parameter estimates, UP-OSI is
 \begin{figure*}[h!]
 \begin{subfigure}[b]{0.5\textwidth}
 \centering
-\includegraphics[width=0.5\linewidth]{figs/model.pdf}
+\includegraphics[width=0.8\linewidth]{figs/model.pdf}
 \caption{Graphical model}
 \end{subfigure}
 \begin{subfigure}[b]{0.5\textwidth}
 \centering
-\includegraphics[width=0.5\linewidth]{figs/system_structure.pdf}
+\includegraphics[width=\linewidth]{figs/system_structure.pdf}
 \caption{System structure}
 \end{subfigure}
 \end{figure*}
@@ -164,23 +164,17 @@ TODO: Explain how the system works (input to the network, etc.)
 %------------------------------------------%
 \begin{algorithm}[tb]
 \caption{\texttt{Bayesian-DRL}}
-\label{alg:highLevel}	
+\label{alg:highLevel}
 \begin{algorithmic}[1]
-\State Statement and a comment. \Comment{Initialization}
+\State BayesEstimator $B$, $\theta_0$, $n_{itr}$, $n_{sample}$\Comment{Initialization}
 \vspace{2mm}
-\For{each statement in this for loop} \Comment{Hi there} 
-	\State down a can of beer. :P
+\For{n = 1, 2, ..., $n_{itr}$}
+  \For{k = 1, 2 , ..., $n_{sample}$}
+    \State sample model parameter $\phi_k \sim \mathcal{P}$,
+    \State sample a trajectory $\tau_k$ from $\mathcal{M}_{\phi_k}$ using policy $\pi(\theta_i)$ and estimator $B$.
+  \EndFor
 \EndFor
-\State okie-dokey.
-\While{JS is drawing his error bars}
-	\State add text.
-	\If{I mess up}
-		\State Gilwoo will correct it ha!
-	\Else
-		\State we are screwed
-	\EndIf   		
-\EndWhile
-\State \textbf{return} brian's awesome results.
+\State Update policy: $\pi(\theta_i) = BatchPolOpt(\theta_i, \{\tau_1, ..., \tau_k\})$
 \end{algorithmic}
 \end{algorithm}
 
