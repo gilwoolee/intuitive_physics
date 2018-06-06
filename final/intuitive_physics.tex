@@ -77,8 +77,7 @@ Model-based reinforcement learning techniques offer an opportunity to overcome t
 The primary challenge with model-based techniques is the discrepancy between simulation and the real world.
 Simplified models, inaccurate or uncertain parameters that govern the dynamics of the model, and other unmodeled disturbances and noise can render the policies learned on the simulated model ineffective on the real system.
 
-We propose a model-based algorithm that learns an ensemble policy for Bayes-adaptive reinforcement learning that is robust to model uncertainty and disturbances.
-Although the real system's exact physical parameters are unknown, we can maintain a belief distribution over those parameters and provide this belief as an additional input to the policy.
+We propose a model-based algorithm that learns a universal policy for Bayes-adaptive MDP that is robust and optimal to model uncertainty and disturbances. Although the real system's exact physical parameters are unknown, we can maintain a belief distribution over those parameters and provide this belief as an additional input to the policy.
 This enables the learned policy to be bold when confident in its model and cautious when there is high model uncertainty.
 
 \section{Related Work}
@@ -101,6 +100,8 @@ Our work closes this gap in EPOpt by maintaining a belief over the training MDPs
 Another recent approach to model uncertainty is UP-OSI\cite{yu2017uposi}, which utilizes online system identification to estimate the physical parameters of the system.
 However, UP-OSI only uses the mean estimate of those parameters as an additional input to the policy.
 Without a notion of belief and uncertainty in its parameter estimates, UP-OSI is prone to aggressively executing policies without being conservative toward remaining model uncertainty.
+
+TODO: mention \cite{guez2014bayes} and other bayesian work.
 
 \section{Methods and Algorithm Description}
 
