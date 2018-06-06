@@ -18,9 +18,11 @@
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
 \usepackage{amsmath, amssymb, amsfonts, amsthm}
-\usepackage{graphicx} % for pdf, bitmapped graphics files
+\usepackage[export]{adjustbox}
 \usepackage{subcaption}
 \usepackage[font=small]{caption}
+\usepackage{todonotes}
+\usepackage[]{algorithm2e}
 
 % Some reference styles
 \newcommand{\eref}[1]{(\ref{#1})}% Equation
@@ -33,7 +35,7 @@
 \DeclareMathOperator*{\argmin}{arg\,min}
 \bibliographystyle{ieeetr}
 
-\title{Bayesian-Adaptive Deep Reinforcement Learning via Ensemble Learning}
+\title{Bayesian-Adaptive Deep Reinforcement Learning using Model Ensembles}
 
 % The \author macro works with any number of authors. There are two
 % commands used to separate the names and addresses of multiple
@@ -57,12 +59,37 @@
 }
 
 \begin{document}
-% \nipsfinalcopy is no longer used
 
 \maketitle
 
+    \begin{abstract}
+    lalala abstract!
+    \end{abstract}
+
 \section{Introduction}
 While reinforcement learning is capable of controlling complex autonomous systems, RL algorithms typically require huge amounts of data, can overfit to a particular task, or may learn brittle policies that are prone to disturbances. One of the main challenges that needs to be addressed is to train a policy that is robust to various model uncertainties and disturbances. In this project, we aim to address this challenge via an ensemble policy for Bayes-Adaptive Reinforcement Learning~\cite{ghavamzadeh2015bayesian}.
+
+We model $b_\phi$ as a network capable of modeling evolving state change, e.g., Recurrent Neural Networks, or as a Bayes filter. At the low level, we plan to discretize $\Phi$ and have one actor-critic network per discretized value of $\phi$: each critic estimates $V^*(\cdot;\phi)$ and each actor has an optimal policy for a particular discretized value of $\pi^*(\cdot;\phi)$. Given $b_\phi$ and the set of value-function approximators, it is straightforward to compute (\ref{eq:barl}).
+
+\section{Related Works}
+Our work is closely related to QMDP~\cite{littman1995learning, karkus2017qmdp} which is an approximation for POMDP. QMDP approximates POMDP by assuming fully-observable MDP after 1-step, and approximating the Q-value at the current belief state $b(s)$ as $Q_a(b) =\sum_s b(s)Q_{\text{MDP}}(s, a)$. In our problem setup, we have a belief over the physics parameters $\phi$ of the MDP, $b(\phi)$, and we compute the policy $Q_a(s;b) = \sum_\phi b(\phi)Q_{\text{MDP}}(s,a;\phi)$.
+
+The BAMDP formulation is also similar to POMDP formulation used in POMDP-lite~\cite{chen2016pomdp} which assumes that the hidden state variables are constant or only change deterministically. In our case, the hidden state variables correspond to the physics parameters $\phi$. The authors of POMDP-lite have shown that such formulation is ``equivalent to a set of fully observable Markov decision processes indexed by a hidden parameter''~\cite{chen2016pomdp}, which, in our case, is a discretization of $\phi$.
+
+\newpage
+
+\section{Bayes-Adaptive Reinforcement Learning}
+\begin{figure*}[h!]
+\begin{subfigure}[b]{0.3\columnwidth}
+\includegraphics[width=\linewidth]{figs/model.pdf}
+\caption{Graphical Model}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.65\columnwidth}
+\missingfigure[figwidth=6cm]{Testing a long text string}
+\caption{System structure}
+\end{subfigure}
+\end{figure*}
 
 We assume that there exists a latent physics variable $\phi$ which determines the transition function of the underlying MDP, i.e., the transition function  $P(s',\phi' |s, \phi, a)$ is now a function of state, action, and $\phi$. We would like to learn a policy which maximizes the long term reward given $\phi$. Formally, this is called a Bayes-Adaptive MDP~\cite{ghavamzadeh2015bayesian, ross2008bayes, guez2012efficient}, defined by a tuple $\langle \mathcal{S}', \mathcal{A}, P, P_0, R \rangle$ where
 \begin{itemize}
@@ -92,21 +119,25 @@ which is then used to compute the best policy from an ensemble of $\phi$-depende
  a^* &= \argmax_{a} \mathbb{E}_{\phi \sim b(\phi)} \bigg[R(s, a, \phi) + \gamma \sum_{s', \phi'}P(s',\phi'|s, \phi, a)V^{*'}(s', \phi') \bigg].
 \end{align}
 
-We model $b_\phi$ as a network capable of modeling evolving state change, e.g., Recurrent Neural Networks, or as a Bayes filter. At the low level, we plan to discretize $\Phi$ and have one actor-critic network per discretized value of $\phi$: each critic estimates $V^*(\cdot;\phi)$ and each actor has an optimal policy for a particular discretized value of $\pi^*(\cdot;\phi)$. Given $b_\phi$ and the set of value-function approximators, it is straightforward to compute (\ref{eq:barl}).
+\section{Bayes-Adaptive Policy Network}
 
-\section{Background}
-Our work is closely related to QMDP~\cite{littman1995learning, karkus2017qmdp} which is an approximation for POMDP. QMDP approximates POMDP by assuming fully-observable MDP after 1-step, and approximating the Q-value at the current belief state $b(s)$ as $Q_a(b) =\sum_s b(s)Q_{\text{MDP}}(s, a)$. In our problem setup, we have a belief over the physics parameters $\phi$ of the MDP, $b(\phi)$, and we compute the policy $Q_a(s;b) = \sum_\phi b(\phi)Q_{\text{MDP}}(s,a;\phi)$.
+TODO: Explain how the system works (input to the network, etc.)
 
-The BAMDP formulation is also similar to POMDP formulation used in POMDP-lite~\cite{chen2016pomdp} which assumes that the hidden state variables are constant or only change deterministically. In our case, the hidden state variables correspond to the physics parameters $\phi$. The authors of POMDP-lite have shown that such formulation is ``equivalent to a set of fully observable Markov decision processes indexed by a hidden parameter''~\cite{chen2016pomdp}, which, in our case, is a discretization of $\phi$.
-
-\section{Milestones}
-We have proposed the following milestones in our proposal:
-\begin{itemize}
-\item[\checkmark] April 30 -- Set up all simulation environments in DART~\cite{lee2018dart} (including a kinematic simulation for the RACECAR)
-\item May 15   -- Test algorithm on simulated OpenAI problems
-\item May 22   -- Test algorithm on RACECAR in simulation
-\item May 31   -- Run experiments on the real RACECAR
-\end{itemize}
+\begin{algorithm}[t!]
+ \KwData{this text}
+ \KwResult{how to write algorithm with \LaTeX2e }
+ initialization\;
+ \While{not at end of this document}{
+  read current\;
+  \eIf{understand}{
+   go to next section\;
+   current section becomes this one\;
+   }{
+   go back to the beginning of current section\;
+  }
+ }
+ \caption{TODO: write the algoruthm. (Change this to a prettier algorithm package)}
+\end{algorithm}
 
 \section{Experiments}
 
@@ -115,6 +146,99 @@ We have setup a set of simulated examples and a set of RL algorithms to be utili
 Our algorithm will be compared against two classes of algorithms: (1) sample-based algorithms which chooses an MDP and commit to this policy for a fixed horizon, and (2) ensemble algorithms which train a policy over an ensemble of MDP models. A greedy algorithm which chooses the maximum-likely MDP, or one that samples from a posterior distribution of MDPs given previous observations (e.g. Posterior Sampling Reinforcement Learning \cite{psrl}) would fall into the former, and EPOpt\cite{rajeswaran2016epopt} and Ensemble-CIO~\cite{ensemble-cio} would fall into the latter.
 
 We are currently in the process of setting up baseline algorithms which may be used for direct comparison or as internal policy update algorithms for each of MDP in our algorithm.
+
+\newpage
+\begin{figure*}[t!]
+\begin{centering}
+\begin{subfigure}[b]{0.3\columnwidth}
+\adjincludegraphics[height=3cm,trim={{.6\width} {0.4\height} {0.15\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_nominal.png}
+\caption{Nominal}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\columnwidth}
+\adjincludegraphics[height=3cm,trim={{.5\width} {0.4\height} {0.25\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_170_92.png}
+\caption{Key frames}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\columnwidth}
+\adjincludegraphics[height=3cm,trim={{.5\width} {0.4\height} {0.25\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_150_150.png}
+\caption{Key frames}
+\end{subfigure}
+\end{centering}
+\caption{Keyframes from rollouts on various MDPs. The universal policy network learns to use different policies on different MDPs.}
+\end{figure*}
+
+
+\newpage
+\begin{figure*}[t!]
+\begin{centering}
+\begin{subfigure}[b]{0.38\columnwidth}
+\includegraphics[width=\linewidth]{figs/cheetah_nominal_comparison.pdf}
+\subcaption{Return on a sampled MDP}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.38\columnwidth}
+\includegraphics[width=\linewidth]{figs/cheetah_env_comparison.pdf}
+\subcaption{Return on one of the chosen MDPs}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.20\columnwidth}
+\includegraphics[width=\linewidth]{figs/ant_average.pdf}
+\subcaption{Average return}
+\end{subfigure}
+\end{centering}
+\caption{Return on sampled and prechosen MDPs. BARL is better than EPOpt. On average across K pre-chosen MDPs, it outperforms EPOpt by a large margin. TODO: remove BMP.}
+\end{figure*}
+
+\begin{figure*}[t!]
+\begin{centering}
+\begin{subfigure}[b]{0.38\columnwidth}
+\includegraphics[width=\linewidth]{figs/cheetah_training_curves.pdf}
+\subcaption{Return on a sampled MDP}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.38\columnwidth}
+\includegraphics[width=\linewidth]{figs/swimmer_training_curves.pdf}
+\end{subfigure}
+\end{centering}
+\caption{Training curves}
+\end{figure*}
+
+
+
+\newpage
+\begin{figure*}[t!]
+\begin{centering}
+\begin{subfigure}[b]{0.3\columnwidth}
+\adjincludegraphics[height=3cm,trim={{.4\width} {0.42\height} {0.35\width} {0.33\height}},clip=true]{figs/keyframes/ant/ant_nominal_18.png}
+\caption{Nominal}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.3\columnwidth}
+\adjincludegraphics[height=3cm,trim={{.4\width} {0.42\height} {0.35\width} {0.33\height}},clip=true]{figs/keyframes/ant/ant_120_19.png}
+\caption{Key frames}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.3\columnwidth}
+\adjincludegraphics[height=3cm,trim={{.6\width} {0.34\height} {0.15\width} {0.41\height}},clip=true]{figs/keyframes/ant/ant_140_87.png}
+\caption{Key frames}
+\end{subfigure}
+\vfill
+\begin{subfigure}[b]{0.3\columnwidth}
+\adjincludegraphics[height=3cm,trim={{.55\width} {0.34\height} {0.20\width} {0.41\height}},clip=true]{figs/keyframes/swimmer/swimmer_nominal.png}
+\caption{Nominal}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.3\columnwidth}
+\adjincludegraphics[height=3cm,trim={{.55\width} {0.40\height} {0.20\width} {0.35\height}},clip=true]{figs/keyframes/swimmer/swimmer_20_12.png}
+\caption{Key frames}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.3\columnwidth}
+\adjincludegraphics[height=3cm,trim={{.35\width} 0 {0.40\width} {0.55\height}},clip=true]{figs/keyframes/swimmer/swimmer_40_157.png}
+\caption{Key frames}
+\end{subfigure}
+\caption{Keyframes from rollouts on various MDPs. Some of the MDPs are gemeotrically significatnly differnt that they require drastically different policies to achieve optimal returns.}
+\end{centering}
+\end{figure*}
 
 \bibliography{intuitive_physics}
 
