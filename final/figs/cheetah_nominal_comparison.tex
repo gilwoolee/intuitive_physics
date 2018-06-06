@@ -37,13 +37,13 @@
 \begin{document}
 \begin{tikzpicture}
 \begin{axis}[
-  width=16cm, height=12cm,
+  width=12cm, height=12cm,
   bar width=32pt,
   ymin=0, ymax=550,
   axis x line=center,
   axis y line=left,
-  symbolic x coords={Bayes, BMP, EPOpt, QMDP, Best},
-  xtick={Bayes, BMP, EPOpt, QMDP, Best},
+  symbolic x coords={Bayes, EPOpt, QMDP, Best},
+  xtick={Bayes, EPOpt, QMDP, Best},
   ytick={0,100,200,300,400,500},
   ylabel style={align=center},
   label style={font=\fontsize{15}{0}\selectfont},
@@ -54,9 +54,6 @@
   \pgfplotstablegetelem{1}{1}\of\nominal
   \addplot[ybar,color=bayes_c,fill] coordinates {
         (Bayes,\pgfplotsretval)};
-  \pgfplotstablegetelem{1}{0}\of\nominal
-  \addplot[ybar,color=barl_c,fill] coordinates {
-        (BMP,\pgfplotsretval)};
   \pgfplotstablegetelem{1}{2}\of\nominal
   \addplot[ybar,color=epopt_c,fill] coordinates {
         (EPOpt,\pgfplotsretval)};
@@ -81,22 +78,7 @@
   	(Bayes,\pgfplotsretval) +-
   	\pgfplotstablegetelem{2}{1}\of\nominal
   	(0,\pgfplotsretval) };
-  
-  \pgfplotstablegetelem{1}{0}\of\nominal
-  \addplot+[
-  black,
-  only marks,
-  mark=*,
-  mark options={black, scale=1.0},
-  error bars/.cd,
-  y dir=both,
-  y explicit
-  ]
-  coordinates {
-  	(BMP,\pgfplotsretval) +-
-  	\pgfplotstablegetelem{2}{0}\of\nominal
-  	(0,\pgfplotsretval) };
-  
+   
   \pgfplotstablegetelem{1}{2}\of\nominal
   \addplot+[
   black,
