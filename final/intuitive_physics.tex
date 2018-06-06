@@ -94,7 +94,7 @@ The BAMDP formulation that we consider is also similar to POMDP formulation used
 \begin{subfigure}[b]{0.5\textwidth}
 \centering
 \includegraphics[width=0.5\linewidth]{figs/model.pdf}
-\caption{Graphical Model}
+\caption{Graphical model}
 \end{subfigure}
 \begin{subfigure}[b]{0.5\textwidth}
 \centering
@@ -171,13 +171,37 @@ TODO: Explain how the system works (input to the network, etc.)
 
 \section{Analysis}
 
+\begin{itemize}
+	\item By augmenting the observation with a belief over 	MDPs, policy networks can learn to be robust against 	model uncertainty while maintaining some of the
+	``optimal'' actions w.r.t. each MDP.
+	\item When the optimal policies across MDPs have a lot in 	common (e.g., Swimmer), simple "interpolation" of the deterministic policies provide good action proposals,
+	suggesting that a mixture of policies (with a large number of policies that cover the space), may reduce sample complexity and offer even better performance.
+\end{itemize}
+
 \section{Results}
+
+\begin{itemize}
+	\item MuJoCo environments: Ant, Swimmer, HalfCheetah
+	\begin{itemize}
+		\item Uniformly sampled 20 MDPs across a range of parameters (e.g., body link length, mass, geometry size, joint damping, friction)
+	\end{itemize}
+	\item Algorithm Implementations:
+	\begin{itemize}
+		\item All policy networks were Gaussian MLPs with two layers, (64, 64), except for Bayes ones which had (128, 64) to account for the larger input space
+		\item TRPO implementation from \texttt{rllab}
+		\item EPOpt implemented based on the paper
+		\item Bayes-Mixture Policy uses TRPO policies trained on the 20 MDPs to mix actions based on the belief
+		\item QMDP uses TRPO policies trained on the 20 MDPs to rollout trajectories and approximate Q-functions
+	\end{itemize}
+\end{itemize}
 
 \section{Future Work}
 
-
-
-
+\begin{itemize}
+	\item Extend to a continuous version which has Gaussian belief distribution as input
+	\item Bootstrap a set of stochastic/deterministic policies, each trained for one MDP or a small range of parameters
+	\item Train with additional reward bonus for information gain which helps distinguishing policies (not just beliefs)
+\end{itemize}
 
 %While reinforcement learning is capable of controlling complex autonomous systems, RL algorithms typically require huge amounts of data, can overfit to a particular task, or may learn brittle policies that are prone to disturbances. One of the main challenges that needs to be addressed is to train a policy that is robust to various model uncertainties and disturbances. In this project, we aim to address this challenge via an ensemble policy for Bayes-Adaptive Reinforcement Learning~\cite{ghavamzadeh2015bayesian}.
 %
