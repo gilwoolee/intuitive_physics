@@ -10,19 +10,19 @@ text width=5em, text centered, rounded corners, minimum height=2em]
 \begin{tikzpicture}[auto]
 
   % Define nodes
-  \node[block] (nn) {Policy Network};
+  \node[block] (nn) {Agent};
   \node[obs, right=of nn] (a) {$\mathbf{a}$};
   \node[block, below=0.5cm of a] (w) {World};
-  \node[obs, below=0.5cm of w] (o) {$\mathbf{o}$};
+  \node[obs, below=0.5cm of w] (s) {$\mathbf{s}$};
   \node[obs, left=of nn] (b) {$b$};
-  \node[block, left=of o] (e) {Estimator};
+  \node[block, left=of s] (e) {Estimator};
 
   % Connect the nodes
   \path [line] (nn) -- (a);
   \path [line] (a) -- (w);
-  \path [line] (w) -- (o);
-  \path [line] (o) -- (e);
-  \path [line] (o) -| ([shift={(-5mm,3.5mm)}]o.north west) -| ([shift={(-6mm,-1.5mm)}]nn.west) -- ([yshift=-1.5mm]nn.west);
+  \path [line] (w) -- (s);
+  \path [line] (s) -- (e);
+  \path [line] (s) -| ([shift={(-5mm,3.5mm)}]s.north west) -| ([shift={(-6mm,-1.5mm)}]nn.west) -- ([yshift=-1.5mm]nn.west);
   \path [line] (e) -| (b);
   \path [line] (b) -- (nn);
 

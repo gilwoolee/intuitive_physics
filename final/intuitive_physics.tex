@@ -177,7 +177,7 @@ where $Z$ is a normalizing constant and $P(\phi_{t+1} | \cdot) = 1$ is the deter
 \begin{figure*}[t!]
 \centering
 \includegraphics[width=0.5\linewidth]{figs/system_structure.pdf}
-\caption{System structure}
+\caption{Bayes-Adaptive Reinforcement Learning}
 \end{figure*}
 
 The main contribution of our work is a policy-gradient algorithm which produces a universal policy that maintains different strategies for different beliefs. The key idea is to augment the state with the belief and provide this augmented feature as input to the policy. The policy is a function of both state and belief: $\pi: \mathcal{S} \times \mathcal{B} \rightarrow P(\mathcal{A})$, where $\mathcal{B}$ is the belief space. This allows the policy to differentiate between the beliefs while sharing globally effective strategies.
