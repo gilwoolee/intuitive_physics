@@ -22,7 +22,9 @@
 \usepackage{subcaption}
 \usepackage[font=small]{caption}
 \usepackage{todonotes}
-\usepackage[]{algorithm2e}
+%\usepackage[]{algorithm2e}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 
 % Some reference styles
 \newcommand{\eref}[1]{(\ref{#1})}% Equation
@@ -49,13 +51,12 @@
 
 \author{
   Gilwoo Lee \\ \texttt{gilwoo@cs.uw.edu} \\
-  %% examples of more authors
   \And
   Jeongseok Lee \\ \texttt{jslee02@cs.uw.edu} \\
   \And
   Brian Hou \\ \texttt{bhou@cs.uw.edu} \\
   \And
-  Aditya Vamsikrishna \\ \texttt{adityavk@cs.uw.edu} \\
+  Aditya Mandalika \\ \texttt{adityavk@cs.uw.edu} \\
 }
 
 \begin{document}
@@ -67,6 +68,28 @@
     \end{abstract}
 
 \section{Introduction}
+Learning optimal behaviors and decision-making in the face of uncertainty and disturbances has been a major research area of interest to the robotics community. 
+Although model-free deep reinforcement learning algorithms have shown tremendous success in a wide range of tasks such as simulated control problems, and games like Go and Poker, they face fundamental challenges in their application to physical control systems like robots. 
+The need for large amounts of data and entailing huge learning times, high sample complexity and issues of safety in gathering data from the real world are some of the major barriers to break to directly apply these methods on real systems.
+
+Model-based reinforcement learning techniques offer an opportunity to overcome these issues by taking advantage of simulations of the real systems. The primary challenge, however, with model-based techniques is the apparent discrepancy between the simulation models of the physical system. Simplified models, inaccurate or uncertain parameters that govern the dynamics of the model, and other unmodelled disturbances and noise can render the policies learned for the model, brittle. Identifying the need for robustness, in this work, we propose a model-based algorithm to learn an ensemble policy for Bayes-Adaptive Reinforcement Learning that elegantly handles model uncertainties and disturbances.
+
+
+
+\section{Related Work}
+
+\section{Algorithm and System Description}
+
+\section{Analysis}
+
+\section{Results}
+
+\section{Future Work}
+
+
+
+
+
 While reinforcement learning is capable of controlling complex autonomous systems, RL algorithms typically require huge amounts of data, can overfit to a particular task, or may learn brittle policies that are prone to disturbances. One of the main challenges that needs to be addressed is to train a policy that is robust to various model uncertainties and disturbances. In this project, we aim to address this challenge via an ensemble policy for Bayes-Adaptive Reinforcement Learning~\cite{ghavamzadeh2015bayesian}.
 
 We model $b_\phi$ as a network capable of modeling evolving state change, e.g., Recurrent Neural Networks, or as a Bayes filter. At the low level, we plan to discretize $\Phi$ and have one actor-critic network per discretized value of $\phi$: each critic estimates $V^*(\cdot;\phi)$ and each actor has an optimal policy for a particular discretized value of $\pi^*(\cdot;\phi)$. Given $b_\phi$ and the set of value-function approximators, it is straightforward to compute (\ref{eq:barl}).
@@ -122,22 +145,51 @@ which is then used to compute the best policy from an ensemble of $\phi$-depende
 \section{Bayes-Adaptive Policy Network}
 
 TODO: Explain how the system works (input to the network, etc.)
-
-\begin{algorithm}[t!]
- \KwData{this text}
- \KwResult{how to write algorithm with \LaTeX2e }
- initialization\;
- \While{not at end of this document}{
-  read current\;
-  \eIf{understand}{
-   go to next section\;
-   current section becomes this one\;
-   }{
-   go back to the beginning of current section\;
-  }
- }
- \caption{TODO: write the algoruthm. (Change this to a prettier algorithm package)}
+%%\newcommand{\argmin}{\operatornamewithlimits{\arg\min}}
+%
+%
+%------------------------------------------
+% Algorithm 6: Abstract Version
+%------------------------------------------%
+\begin{algorithm}[tb]
+\caption{\texttt{Bayesian-DRL}}
+\label{alg:highLevel}	
+\begin{algorithmic}[1]
+\State Statement and a comment. \Comment{Initialization}
+\vspace{2mm}
+\For{each statement in this for loop} \Comment{Hi there} 
+	\State down a can of beer. :P
+\EndFor
+\State okie-dokey.
+\While{JS is drawing his error bars}
+	\State add text.
+	\If{I mess up}
+		\State Gilwoo will correct it ha!
+	\Else
+		\State we are screwed
+	\EndIf   		
+\EndWhile
+\State \textbf{return} brian's awesome results.
+\end{algorithmic}
 \end{algorithm}
+
+
+
+%\begin{algorithm}[t!]
+% \KwData{this text}
+% \KwResult{how to write algorithm with \LaTeX2e }
+% initialization\;
+% \While{not at end of this document}{
+%  read current\;
+%  \eIf{understand}{
+%   go to next section\;
+%   current section becomes this one\;
+%   }{
+%   go back to the beginning of current section\;
+%  }
+% }
+% \caption{TODO: write the algoruthm. (Change this to a prettier algorithm package)}
+%\end{algorithm}
 
 \section{Experiments}
 
