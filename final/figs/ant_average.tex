@@ -45,8 +45,8 @@
   % ymin=0, ymax=200,
   axis x line=center,
   axis y line=left,
-  symbolic x coords={Bayes, BMP, EPOpt},
-  xtick={Bayes, BMP, EPOpt},
+  symbolic x coords={Bayes, Bayes-MP, EPOpt},
+  xtick={Bayes, Bayes-MP, EPOpt},
   % ytick={0,100,200,300,400,500},
   ylabel style={align=center},
   label style={font=\fontsize{15}{0}\selectfont},
@@ -59,7 +59,7 @@
         (Bayes,\pgfplotsretval)};
   \pgfplotstablegetelem{1}{0}\of\ant
   \addplot[ybar,color=barl_c,fill] coordinates {
-        (BMP,\pgfplotsretval)};
+        (Bayes-MP,\pgfplotsretval)};
   \pgfplotstablegetelem{1}{2}\of\ant
   \addplot[ybar,color=epopt_c,fill] coordinates {
         (EPOpt,\pgfplotsretval)};
@@ -92,7 +92,7 @@
   y explicit
   ]
   coordinates {
-	(BMP,\pgfplotsretval) +-
+	(Bayes-MP,\pgfplotsretval) +-
 	\pgfplotstablegetelem{2}{0}\of\ant
 	(0,\pgfplotsretval) };
   
