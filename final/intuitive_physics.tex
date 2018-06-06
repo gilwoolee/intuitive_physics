@@ -154,9 +154,21 @@ P(\mathcal{M} | \tau) &= \frac{1}{Z}P(\tau | \mathcal{M}) \times P(\phi_\mathcal
 \end{align}
 where $Z$ is the normalizing constant that allows the sum of probabilities over all the MDPs to be unity. These probabilities are used to update the belief.
 
-\subsection{Bayes-Adaptive Policy Network}
+TODO: This equation is confusing, just use $M_\phi$ instead of $\mathcal{M}$ or $\phi$. The second term $P(\phi_\mathcal{M})$ should be $P_{t-1}(M_\phi)$, the prior belief over $M_\phi$, and what we're computing is the posterior distribution, $P_t(M_\phi)$.
 
-TODO: Explain how the system works (input to the network, etc.)
+
+\section{Bayes-Adaptive Policy Gradient}
+
+The main contribution of our work is a policy-gradient algorithm which produces a universal policy that maintains different strategies for different beliefs. The key idea is to augment the state with the belief and provide this augmented feature as input to the policy. The policy is a function of both state and belief: $\pi: \mathcal{S} \times \mathcal{B} \rightarrow P(\mathcal{A})$, where $\mathcal{B}$ is the belief space. This allows the policy to differentiate between the beliefs while sharing globally effective strategies.
+
+In order for this algorithm to work in practice, we need an effective representation of the belief space. If the space of MDPs, $\mathcal{M}$, is finite, the belief $b$ can be a vector of size $|\mathcal{M}|$. In case where $\mathcal{M}$ is infinite, we propose two methods to approximate the belief space:
+
+\begin{itemize}
+    \item Sample $K$ MDPs from the prior belief distribution $b_0$ and use belief over these $K$ MDPs
+    \item Discretize the parameter space and use belief over the parameter space
+\end{itemize}
+In the first case, we use a vector of size $K$ as $b$; $K$ should be large enough to approximate all MDPs with the K sampled ones. In the second case, assuming the latent parameters are independent, the belief is represented as a vector of size $(N_1 + .... + N_M)$ where $M$ is the total number of parameters and $N_m$ is the discretization of the $m$-th parameter. In this project we have implemented the first one, and leave the second one as future work.
+
 %%\newcommand{\argmin}{\operatornamewithlimits{\arg\min}}
 %
 %
@@ -164,18 +176,18 @@ TODO: Explain how the system works (input to the network, etc.)
 % Algorithm:
 %------------------------------------------%
 \begin{algorithm}[tb]
-\caption{\texttt{Bayesian-DRL}}
+\caption{\texttt{Bayes-Adaptive Policy Gradient}}
 \label{alg:highLevel}
 \begin{algorithmic}[1]
-\State BayesEstimator $B$, $\theta_0$, $n_{itr}$, $n_{sample}$\Comment{Initialization}
+\State Bayes-Estimator $ES$, $b_0$, $\theta_0$, $n_{itr}$, $n_{sample}, \mathcal{M}$\Comment{Initialization}
 \vspace{2mm}
-\For{n = 1, 2, ..., $n_{itr}$}
-  \For{k = 1, 2 , ..., $n_{sample}$}
-    \State sample model parameter $\phi_k \sim \mathcal{P}$,
-    \State sample a trajectory $\tau_k$ from $\mathcal{M}_{\phi_k}$ using policy $\pi(\theta_i)$ and estimator $B$.
+\For{i = 1, 2, ..., $n_{itr}$}
+  \For{n = 1, 2 , ..., $n_{sample}$}
+    \State sample model parameter $\phi \sim b_0$ to get $M_{\phi}$
+    \State sample a trajectory $\tau_n$ from $M_{\phi}$ using policy $\pi(\theta_i)$ and estimator $ES$.
   \EndFor
 \EndFor
-\State Update policy: $\pi(\theta_i) = BatchPolOpt(\theta_i, \{\tau_1, ..., \tau_k\})$
+\State Update policy: $\pi(\theta_{i+1}) = BatchPolOpt(\theta_i, \{\tau_1, ..., \tau_{n_{sample}}\})$
 \end{algorithmic}
 \end{algorithm}
 
