@@ -233,22 +233,22 @@ We have setup a set of simulated examples and a set of RL algorithms to be utili
 
 \begin{figure*}[t!]
 \begin{centering}
-\begin{subfigure}[b]{0.24\columnwidth}
+\begin{subfigure}[b]{0.3\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_nominal_comparison.pdf}
 \subcaption{Nominal MDP}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.24\columnwidth}
+\begin{subfigure}[b]{0.3\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_env_comparison.pdf}
 \subcaption{One of K MDPs}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.22\columnwidth}
+\begin{subfigure}[b]{0.235\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_average.pdf}
 \subcaption{Over 20 MDPs}
 \end{subfigure}
-\end{centering}
 \caption{Return on sampled and prechosen MDPs. BARL is better than EPOpt. On average across K pre-chosen MDPs, it outperforms EPOpt by a large margin. TODO: remove BMP.}
+\end{centering}
 \end{figure*}
 
 
@@ -268,14 +268,17 @@ We have setup a set of simulated examples and a set of RL algorithms to be utili
 \adjincludegraphics[height=3cm,trim={{.6\width} {0.4\height} {0.15\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_nominal.png}
 \caption{Nominal}
 \end{subfigure}
+\hfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.5\width} {0.4\height} {0.25\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_170_92.png}
 \caption{Key frames}
 \end{subfigure}
+\hfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.5\width} {0.4\height} {0.25\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_150_150.png}
 \caption{Key frames}
 \end{subfigure}
+\vfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.4\width} {0.42\height} {0.35\width} {0.33\height}},clip=true]{figs/keyframes/ant/ant_nominal_18.png}
 \caption{Nominal}
@@ -305,8 +308,8 @@ We have setup a set of simulated examples and a set of RL algorithms to be utili
 \adjincludegraphics[height=3cm,trim={{.35\width} 0 {0.40\width} {0.55\height}},clip=true]{figs/keyframes/swimmer/swimmer_40_157.png}
 \caption{Key frames}
 \end{subfigure}
-\end{centering}
 \caption{Keyframes from rollouts on various MDPs. Some of the MDPs are gemeotrically significatnly differnt that they require drastically different policies to achieve optimal returns.}
+\end{centering}
 \end{figure*}
 
 \bibliography{intuitive_physics}
