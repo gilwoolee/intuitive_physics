@@ -217,73 +217,51 @@ Note that the policy observes the \emph{evolution} of belief along each trajecto
 \end{algorithmic}
 \end{algorithm}
 
-\section{Analysis}
+\section{Experiments}
+
+Our algorithm is compared against the following algorithms  (1) QMDP, (2) EPOpt. QMDP makes the assumption that $\phi$ is revealed after one step, and takes the best action given $b(\cdot)$, i.e. $a* = \max R(s,b,a) + \sum_{\phi\in\Phi} b(\phi)Q(s,a,\phi)$. EPOpt is a minimax-style algorithm which trains the policy to be robust across multiple MDPs, without utilizing the belief in the policy.
+
+We have setup a set of simulated examples and a set of RL algorithms to be utilized in our ensemble approach. For simulated examples, we have the following agents: \textbf{ant, swimmer, half-cheetah}, each with a predefined reward function defined similar to those given by OpenAI Gym~\cite{openai}.For each environment, we uniformly sampled 20 MDPs across a range of parameters (e.g., body link length, mass, geometry size, joint damping, friction), and used these as the set of MDPs with which we approximate the belief space.  We have implemented EPOpt based on the paper. Both EPOpt and BAPO use TRPO provide by \texttt{rllab}~\cite{duan2016benchmarking} as the batch policy optimization algorithm. All policy networks were Gaussian MLPs with two layers, (64, 64), except for Bayes ones which had (128, 64) to account for the larger input space. For QMDP, we used TRPO policies trained on the chosen 20 MDPs to rollout trajectories and approximate Q-functions.
 
 \begin{itemize}
-	\item By augmenting the observation with a belief over 	MDPs, policy networks can learn to be robust against 	model uncertainty while maintaining some of the
-	``optimal'' actions w.r.t. each MDP.
-	\item When the optimal policies across MDPs have a lot in 	common (e.g., Swimmer), simple "interpolation" of the deterministic policies provide good action proposals,
-	suggesting that a mixture of policies (with a large number of policies that cover the space), may reduce sample complexity and offer even better performance.
+    \item By augmenting the observation with a belief over  MDPs, policy networks can learn to be robust against    model uncertainty while maintaining some of the
+    ``optimal'' actions w.r.t. each MDP.
+    \item When the optimal policies across MDPs have a lot in   common (e.g., Swimmer), simple "interpolation" of the deterministic policies provide good action proposals,
+    suggesting that a mixture of policies (with a large number of policies that cover the space), may reduce sample complexity and offer even better performance.
 \end{itemize}
 
-\section{Results}
 
-\begin{itemize}
-	\item MuJoCo environments: Ant, Swimmer, HalfCheetah
-	\begin{itemize}
-		\item Uniformly sampled 20 MDPs across a range of parameters (e.g., body link length, mass, geometry size, joint damping, friction)
-	\end{itemize}
-	\item Algorithm Implementations:
-	\begin{itemize}
-		\item All policy networks were Gaussian MLPs with two layers, (64, 64), except for Bayes ones which had (128, 64) to account for the larger input space
-		\item TRPO implementation from \texttt{rllab}
-		\item EPOpt implemented based on the paper
-		\item Bayes-Mixture Policy uses TRPO policies trained on the 20 MDPs to mix actions based on the belief
-		\item QMDP uses TRPO policies trained on the 20 MDPs to rollout trajectories and approximate Q-functions
-	\end{itemize}
-\end{itemize}
+\begin{figure*}[t!]
+\begin{centering}
+\begin{subfigure}[b]{0.24\columnwidth}
+\includegraphics[width=\linewidth]{figs/cheetah_nominal_comparison.pdf}
+\subcaption{Nominal MDP}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.24\columnwidth}
+\includegraphics[width=\linewidth]{figs/cheetah_env_comparison.pdf}
+\subcaption{One of K MDPs}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.22\columnwidth}
+\includegraphics[width=\linewidth]{figs/cheetah_average.pdf}
+\subcaption{Over 20 MDPs}
+\end{subfigure}
+\end{centering}
+\caption{Return on sampled and prechosen MDPs. BARL is better than EPOpt. On average across K pre-chosen MDPs, it outperforms EPOpt by a large margin. TODO: remove BMP.}
+\end{figure*}
+
+
 
 \section{Future Work}
 
 \begin{itemize}
-	\item Extend to a continuous version which has Gaussian belief distribution as input
-	\item Bootstrap a set of stochastic/deterministic policies, each trained for one MDP or a small range of parameters
-	\item Train with additional reward bonus for information gain which helps distinguishing policies (not just beliefs)
+    \item Extend to a continuous version which has Gaussian belief distribution as input
+    \item Bootstrap a set of stochastic/deterministic policies, each trained for one MDP or a small range of parameters
+    \item Train with additional reward bonus for information gain which helps distinguishing policies (not just beliefs)
 \end{itemize}
 
-%While reinforcement learning is capable of controlling complex autonomous systems, RL algorithms typically require huge amounts of data, can overfit to a particular task, or may learn brittle policies that are prone to disturbances. One of the main challenges that needs to be addressed is to train a policy that is robust to various model uncertainties and disturbances. In this project, we aim to address this challenge via an ensemble policy for Bayes-Adaptive Reinforcement Learning~\cite{ghavamzadeh2015bayesian}.
-%
-%We model $b_\phi$ as a network capable of modeling evolving state change, e.g., Recurrent Neural Networks, or as a Bayes filter. At the low level, we plan to discretize $\Phi$ and have one actor-critic network per discretized value of $\phi$: each critic estimates $V^*(\cdot;\phi)$ and each actor has an optimal policy for a particular discretized value of $\pi^*(\cdot;\phi)$. Given $b_\phi$ and the set of value-function approximators, it is straightforward to compute (\ref{eq:barl}).
 
-\section{Related Works}
-
-\newpage
-
-%\begin{algorithm}[t!]
-% \KwData{this text}
-% \KwResult{how to write algorithm with \LaTeX2e }
-% initialization\;
-% \While{not at end of this document}{
-%  read current\;
-%  \eIf{understand}{
-%   go to next section\;
-%   current section becomes this one\;
-%   }{
-%   go back to the beginning of current section\;
-%  }
-% }
-% \caption{TODO: write the algoruthm. (Change this to a prettier algorithm package)}
-%\end{algorithm}
-
-\section{Experiments}
-
-We have setup a set of simulated examples and a set of RL algorithms to be utilized in our ensemble approach. For simulated examples, we have the following agents: \textbf{ant, reacher, swimmer, half-cheetah}, each with a predefined reward function defined similar to those given by OpenAI Gym~\cite{openai}. We are utilizing TRPO~\cite{trpo}, VPG, DDPG~\cite{ddpg} provide by \texttt{rllab}~\cite{duan2016benchmarking} as a set of algorithms to be utilized in our ensemble approach. In addition, we plan to implement PPO and a PID controller for RACECAR.
-
-Our algorithm will be compared against two classes of algorithms: (1) sample-based algorithms which chooses an MDP and commit to this policy for a fixed horizon, and (2) ensemble algorithms which train a policy over an ensemble of MDP models. A greedy algorithm which chooses the maximum-likely MDP, or one that samples from a posterior distribution of MDPs given previous observations (e.g. Posterior Sampling Reinforcement Learning \cite{psrl}) would fall into the former, and EPOpt\cite{rajeswaran2016epopt} and Ensemble-CIO~\cite{ensemble-cio} would fall into the latter.
-
-We are currently in the process of setting up baseline algorithms which may be used for direct comparison or as internal policy update algorithms for each of MDP in our algorithm.
-
-\newpage
 \begin{figure*}[t!]
 \begin{centering}
 \begin{subfigure}[b]{0.3\columnwidth}
@@ -298,51 +276,6 @@ We are currently in the process of setting up baseline algorithms which may be u
 \adjincludegraphics[height=3cm,trim={{.5\width} {0.4\height} {0.25\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_150_150.png}
 \caption{Key frames}
 \end{subfigure}
-\end{centering}
-\caption{Keyframes from rollouts on various MDPs. The universal policy network learns to use different policies on different MDPs.}
-\end{figure*}
-
-
-\newpage
-\begin{figure*}[t!]
-\begin{centering}
-\begin{subfigure}[b]{0.38\columnwidth}
-\includegraphics[width=\linewidth]{figs/cheetah_nominal_comparison.pdf}
-\subcaption{Return on a sampled MDP}
-\end{subfigure}
-~
-\begin{subfigure}[b]{0.38\columnwidth}
-\includegraphics[width=\linewidth]{figs/cheetah_env_comparison.pdf}
-\subcaption{Return on one of the chosen MDPs}
-\end{subfigure}
-~
-\begin{subfigure}[b]{0.20\columnwidth}
-\includegraphics[width=\linewidth]{figs/cheetah_average.pdf}
-\subcaption{Average return}
-\end{subfigure}
-\end{centering}
-\caption{Return on sampled and prechosen MDPs. BARL is better than EPOpt. On average across K pre-chosen MDPs, it outperforms EPOpt by a large margin. TODO: remove BMP.}
-\end{figure*}
-
-\begin{figure*}[t!]
-\begin{centering}
-\begin{subfigure}[b]{0.38\columnwidth}
-\includegraphics[width=\linewidth]{figs/cheetah_training_curves.pdf}
-\subcaption{Return on a sampled MDP}
-\end{subfigure}
-~
-\begin{subfigure}[b]{0.38\columnwidth}
-\includegraphics[width=\linewidth]{figs/swimmer_training_curves.pdf}
-\end{subfigure}
-\end{centering}
-\caption{Training curves}
-\end{figure*}
-
-
-
-\newpage
-\begin{figure*}[t!]
-\begin{centering}
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.4\width} {0.42\height} {0.35\width} {0.33\height}},clip=true]{figs/keyframes/ant/ant_nominal_18.png}
 \caption{Nominal}
@@ -372,8 +305,8 @@ We are currently in the process of setting up baseline algorithms which may be u
 \adjincludegraphics[height=3cm,trim={{.35\width} 0 {0.40\width} {0.55\height}},clip=true]{figs/keyframes/swimmer/swimmer_40_157.png}
 \caption{Key frames}
 \end{subfigure}
-\caption{Keyframes from rollouts on various MDPs. Some of the MDPs are gemeotrically significatnly differnt that they require drastically different policies to achieve optimal returns.}
 \end{centering}
+\caption{Keyframes from rollouts on various MDPs. Some of the MDPs are gemeotrically significatnly differnt that they require drastically different policies to achieve optimal returns.}
 \end{figure*}
 
 \bibliography{intuitive_physics}
