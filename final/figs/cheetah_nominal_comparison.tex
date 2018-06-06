@@ -13,11 +13,7 @@
 \usetikzlibrary{intersections}
 \usetikzlibrary{backgrounds}
 \tikzstyle{line} = [draw, -latex']
-\definecolor{bayes_c}{rgb}{1.0,0.141,0.141}
-\definecolor{barl_c}{rgb}{1.0,0.6,0.6}
-\definecolor{epopt_c}{RGB}{255,140,0}
-\definecolor{qmdp_c}{RGB}{50,205,50}
-\definecolor{best_c}{RGB}{30,144,255}
+\input{color}
 
 \pgfplotstableread[header=false, col sep=comma]{data/cheetah_env_nominal_combined.csv}{\nominal}
 \pgfplotstablegetcolsof{\nominal} % Determine no. of cols
@@ -49,7 +45,8 @@
   label style={font=\fontsize{15}{0}\selectfont},
   y tick label style={font=\fontsize{15}{0}\selectfont},
   x tick label style={font=\fontsize{15}{0}\selectfont},
-  enlargelimits=true,
+%  enlargelimits=true,
+  enlarge x limits=0.15,
   ylabel={Average Return}]
   \pgfplotstablegetelem{1}{1}\of\nominal
   \addplot[ybar,color=bayes_c,fill] coordinates {
