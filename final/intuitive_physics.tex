@@ -69,8 +69,8 @@
 % \end{abstract}
 
 \section{Introduction}
-Although model-free deep reinforcement learning algorithms have shown tremendous success in a wide range of tasks, such as simulated control problems in OpenAI Gym\cite{openai-gym} and games like Go\cite{alphago}, they face fundamental challenges in their application to physical control problems on robotic hardware.
-The high sample complexity of current methods results in long training periods if applied directly to hardware, even for simple grasping tasks\cite{levine2016armfarm}.
+Although model-free deep reinforcement learning algorithms have shown tremendous success in a wide range of tasks, such as simulated control problems in OpenAI Gym~\cite{openai-gym} and games like Go~\cite{alphago}, they face fundamental challenges in their application to physical control problems on robotic hardware.
+The high sample complexity of current methods results in long training periods if applied directly to hardware, even for simple grasping tasks~\cite{levine2016armfarm}.
 Furthermore, the safety of the robot or surrounding environment when gathering data from the real world may be difficult to guarantee while the policy is training.
 
 Model-based reinforcement learning techniques offer an opportunity to overcome these issues by taking advantage of simulations of the real systems, which can generate training data faster than real time.
@@ -93,35 +93,29 @@ The BAMDP formulation that we consider is also similar to the POMDP formulation 
 In our case, the hidden state variables correspond to the physics parameters $\phi$.
 Chen et al. show that this formulation is ``equivalent to a set of fully observable Markov decision processes indexed by a hidden parameter'', which, in our case, is a discretization of $\phi$.
 
-Robustness to model uncertainty has also been addressed by EPOpt\cite{rajeswaran2016epopt}, which learns a policy that maximizes the worst-case performance across multiple sampled MDPs.
+Robustness to model uncertainty has also been addressed by EPOpt~\cite{rajeswaran2016epopt}, which learns a policy that maximizes the worst-case performance across multiple sampled MDPs.
 However, as is common with min-max techniques, EPOpt can be quite conservative (and therefore far from optimal) in its policy, especially when the model's possible parameter-space is large.
 Our work closes this gap in EPOpt by maintaining a belief over the training MDPs to balance between optimality and robustness.
 
-Another recent approach to model uncertainty is UP-OSI\cite{yu2017uposi}, which utilizes online system identification to estimate the physical parameters of the system.
+Another recent approach to model uncertainty is UP-OSI~\cite{yu2017uposi}, which utilizes online system identification to estimate the physical parameters of the system.
 However, UP-OSI only uses the mean estimate of those parameters as an additional input to the policy.
 Without a notion of belief and uncertainty in its parameter estimates, UP-OSI is prone to aggressively executing policies without being conservative toward remaining model uncertainty.
 
 TODO: mention \cite{guez2014bayes} and other bayesian work.
 
-\section{Methods and Algorithm Description}
+\section{Bayes-Adaptive Reinforcement Learning}
 
-\subsection{Bayes-Adaptive Reinforcement Learning}
 \begin{figure*}[t!]
-\begin{subfigure}[b]{0.5\textwidth}
 \centering
-\includegraphics[width=0.8\linewidth]{figs/model.pdf}
-\caption{Graphical model for BAMDP}
-\end{subfigure}
-\begin{subfigure}[b]{0.45\textwidth}
-\centering
-\includegraphics[width=\linewidth]{figs/system_structure.pdf}
-\caption{System structure}
-\end{subfigure}
+\includegraphics[width=0.5\linewidth]{figs/model.pdf}
+\caption{Graphical model for a Bayes-Adaptive Markov Decision Process.}
+\label{fig:pgm}
 \end{figure*}
 
-We assume that there exists a latent physics variable $\phi$ which determines the transition function of the underlying MDP, i.e., the transition function  $P(s',\phi' |s, \phi, a)$ is now a function of state, action, and $\phi$. We would like to learn a policy which maximizes the long term reward given $\phi$. Formally, this is called a Bayes-Adaptive MDP~\cite{ghavamzadeh2015bayesian, ross2008bayes, guez2012efficient}, defined by a tuple $\langle \mathcal{S}', \mathcal{A}, P, P_0, R \rangle$ where
+We follow the Bayes-Adaptive Markov Decision Process framework (\figref{fig:pgm}), which assumes that a latent variable $\phi$ governs the transition function of the underlying Markov Decision Process~\cite{ghavamzadeh2015bayesian, ross2008bayes, guez2012efficient}.
+A Bayes-Adaptive MDP is defined by a tuple $\langle \mathcal{S}', \mathcal{A}, P, P_0, R \rangle$, where
 \begin{itemize}
-\item $\mathcal{S'} = \mathcal{S}\times \Phi$ is the set of hyper-states (states, physics variable),
+\item $\mathcal{S'} = \mathcal{S}\times \Phi$ is the set of hyper-states (state $s$, latent variable $\phi$),
 \item $\mathcal{A}$ is the set of actions,
 \item $P(s',\phi'|s, \phi, a)$ is the transition function between hyper-states, conditioned
 on action $a$ being taken in hyper-state $(s, \phi)$,
@@ -129,35 +123,64 @@ on action $a$ being taken in hyper-state $(s, \phi)$,
 \item $R(s, \phi, a)$ represents the reward obtained when action $a$ is
 taken in hyper-state $(s,\phi)$.
 \end{itemize}
+In our setting of robot control, the latent variables $\phi$ are physics parameters such as mass and length of different robot links (TODO: better word than links).
 
-We would like to find the Bayes-optimal policy for the following Bellman equaton:
+Our goal is to find the Bayes-optimal policy for the following Bellman equaton:
 \begin{equation}\label{eq:rl}
-V^*(b, s) = \max_a \bigg\{R(b, s, a) + \gamma \sum_{s'}P(s'|b, s, a)V^*(b', s') \bigg\}.
+V^*(b, s) = \max_a \bigg\{R(s, b, a) + \gamma \sum_{s'}P(s', b'|s, b, a)V^*(b', s') \bigg\}.
 \end{equation}
-where $b$ is the belief over the set of latent physics parameters $\phi \in \Phi$.
-
-We make a simplification to the BARL formulation. We assume that the latent variable $\phi$ is either constant or the rate of change is slow enough that approximating the long-term value with a determinized $\phi$ is a reasonable short-term approximation for choosing one-step action, i.e. we can treat $V^*(s_t, \phi_t) \approx V^*(s_t, \phi_{t:\infty})$ for the purpose of one-step Bellman update.
-
-This assumption allows us to simplify BARL with an ensemble policy learning method. At a high level, we have a network that updates the \emph{belief} of the physics parameters at time $t$,
+where $b(\phi)$ is the belief over the set of latent physics parameters $\phi \in \Phi$,
 \begin{align*}
-b(\phi_t) = P(\phi_t|s_{t-1}, \phi_{t-1}, a_{t-1})
+R(s, b, a)
+  &= \sum_{\phi \in \Phi} b(\phi) R(s, \phi, a) \\
+P(s', b' | s, b, a)
+  &= \sum_{\phi \in \Phi} b(\phi) P(s', b' | s, \phi, a) \\
+  &= \sum_{\phi \in \Phi} b(\phi) P(s' | s, \phi, a) \sum_{\phi' \in \Phi} P(\phi' | s, \phi, a)
 \end{align*}
-which is then used to compute the best policy from an ensemble of $\phi$-dependent optimal policies, i.e., $\pi^*(\cdot;\phi)$ and $V^*(\cdot;\phi)$ are computed with typical RL algorithms for MDPs. Then the remaining task is to compute the one-step best action $a$:
-\begin{align}\label{eq:barl}
- a^* &= \argmax_{a} \mathbb{E}_{\phi \sim b(\phi)} \bigg[R(s, a, \phi) + \gamma \sum_{s', \phi'}P(s',\phi'|s, \phi, a)V^{*'}(s', \phi') \bigg].
-\end{align}
 
-The probability of an MDP $\mathcal{M}$, governed by latent physics variable $\phi_{\mathcal{M}}$, generating a trajectory $\tau$ is given by:
+TODO(?): mention PAC-MDP?
+
+\subsection{Belief Update}
+
+We make a simplification to the BAMDP formulation by assuming that the latent variable $\phi$ is constant or changing deterministically according to a known transition function.
+% \footnote{
+% A looser assumption is that the rate of change of $\phi$ is slow enough that approximating the long-term value with the same $\phi$ is a reasonable short-term approximation for choosing the one-step action, i.e. we can treat $V^*(s_t, \phi_t) \approx V^*(s_t, \phi_{t:\infty})$ for a one-step Bellman update.
+% }
+As in POMDP-lite\cite{chen2016pomdp}, we can then view the simplified BAMDP model as a set of MDPs that are indexed by the latent variable $\phi$.
+
+% \begin{align*}
+% b(\phi_t) = P(\phi_t|s_{t-1}, \phi_{t-1}, a_{t-1})
+% \end{align*}
+% which is then used to compute the best policy from an ensemble of $\phi$-dependent optimal policies, i.e., $\pi^*(\cdot;\phi)$ and $V^*(\cdot;\phi)$ are computed with typical RL algorithms for MDPs.
+% Then the remaining task is to compute the one-step best action $a$:
+% \begin{align}\label{eq:barl}
+%  a^* &= \argmax_{a} \mathbb{E}_{\phi \sim b(\phi)} \bigg[R(s, a, \phi) + \gamma \sum_{s', \phi'}P(s',\phi'|s, \phi, a)V^{*'}(s', \phi') \bigg].
+% \end{align}
+
+The posterior probability of an MDP governed by latent physics variable $\phi$ given a trajectory $\tau_{0:H} = (s_0, a_0, \cdots, s_H)$ is given by:
 \begin{align}
-P(\mathcal{M} | \tau) &= \frac{1}{Z}P(\tau | \mathcal{M}) \times P(\phi_\mathcal{M}) \nonumber \\
-					  &= \frac{1}{Z}\prod_{t = 0}^{T-1}{P(s = s_{t+1}|s_t, a_t, \phi_\mathcal{M})} \times P(\phi_\mathcal{M})
+P(\phi_H | \tau_{0:H})
+  &= \frac{1}{Z} P(\phi_0) P(\tau_{0:H} | \phi_0) \nonumber \\
+  &= \frac{1}{Z} P(\phi_0) \prod_{t=0}^{H-1} P(s_{t+1}, \phi_{t+1} | s_t, \phi_t, a_t) \nonumber \\
+  &= \frac{1}{Z} P(\phi_0) \prod_{t=0}^{H-1} P(s_{t+1}|s_t, \phi_t, a_t) P(\phi_{t+1} | s_t, \phi_t, a_t)
 \end{align}
-where $Z$ is the normalizing constant that allows the sum of probabilities over all the MDPs to be unity. These probabilities are used to update the belief.
+where $Z$ is a normalizing constant and $P(\phi_{t+1} | \cdot) = 1$ is the deterministic transition of $\phi$.
 
-TODO: This equation is confusing, just use $M_\phi$ instead of $\mathcal{M}$ or $\phi$. The second term $P(\phi_\mathcal{M})$ should be $P_{t-1}(M_\phi)$, the prior belief over $M_\phi$, and what we're computing is the posterior distribution, $P_t(M_\phi)$.
-
+% Assuming that $\phi$ is constant allows us to simplify the belief update rule at each timestep $t$:
+% \begin{align*}
+% b_t(\phi) \propto \sum_{\phi \in \Phi} P(\phi|s_{t-1}, a_{t-1}) b_{t-1}(\phi)
+% \end{align*}
+% Our algorithm uses the state augmented with this updating belief as the input to the policy at each timestep.
 
 \section{Bayes-Adaptive Policy Gradient}
+
+\begin{figure*}[t!]
+\begin{subfigure}[b]{0.5\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figs/system_structure.pdf}
+\caption{System structure}
+\end{subfigure}
+\end{figure*}
 
 The main contribution of our work is a policy-gradient algorithm which produces a universal policy that maintains different strategies for different beliefs. The key idea is to augment the state with the belief and provide this augmented feature as input to the policy. The policy is a function of both state and belief: $\pi: \mathcal{S} \times \mathcal{B} \rightarrow P(\mathcal{A})$, where $\mathcal{B}$ is the belief space. This allows the policy to differentiate between the beliefs while sharing globally effective strategies.
 
