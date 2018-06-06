@@ -8,9 +8,7 @@
 \usepackage{pgfplotstable}
 \usepgfplotslibrary{groupplots}
 
-\definecolor{bayes}{rgb}{1.0,0.141,0.141}
-\definecolor{barl}{rgb}{1.0,0.6,0.6}
-\definecolor{epopt}{rgb}{0.75, 0.75, 0.75}
+\input{color}
 \def\ymin{0}
 \def\ymax{85}
 \def\xmin{0}
@@ -25,6 +23,8 @@
 \pgfmathsetmacro\plotw{6cm}
 \pgfmathsetmacro\ploth{4cm}
 \begin{axis}[
+  reverse legend,
+  legend cell align={left},
   legend pos = south east,
   % width=\plotw, height=\ploth,
   no markers,
@@ -32,19 +32,16 @@
   every axis plot/.append style={line width=2pt},
   axis line style = thin,
   xlabel={Iterations},
-  ylabel={Mean return},
+  ylabel={Mean Return},
   axis lines=left,
   xmin=\xmin, xmax=\xmax, ymax=\ymax, ymin=\ymin
   ]
 
-  \addplot+[color=bayes, mark=none] table[ x index = {0}, y index = {2}]{\data};
-  \addlegendentry{Bayes}
-
-  \addplot+[color=barl, mark=none] table[ x index = {0}, y index = {1}]{\data};
-  \addlegendentry{Bayes-MP}
-
-  \addplot+[color=epopt, mark=none] table[ x index = {0}, y index = {3}]{\data};
+  \addplot+[color=epopt_c, mark=none] table[ x index = {0}, y index = {3}]{\data};
   \addlegendentry{EPOpt}
+  
+  \addplot+[color=bayes_c, mark=none] table[ x index = {0}, y index = {2}]{\data};
+  \addlegendentry{Bayes}
 
 \end{axis}
 

@@ -15,7 +15,10 @@
 \tikzstyle{line} = [draw, -latex']
 \input{color}
 
-\pgfplotstableread[header=false, col sep=comma]{data/cheetah_env7_combined.csv}{\data}
+\pgfplotstableread[header=false, col sep=comma]{data/cheetah_average.csv}{\cheetah}
+\pgfplotstableread[header=false, col sep=comma]{data/ant_average.csv}{\ant}
+\pgfplotstableread[header=false, col sep=comma]{data/swimmer_average.csv}{\data}
+
 \pgfplotstablegetcolsof{\data} % Determine no. of cols
 \pgfmathsetmacro{\cols}{\pgfplotsretval}
 
@@ -33,35 +36,29 @@
 \begin{document}
 \begin{tikzpicture}
 \begin{axis}[
-  width=12cm, height=12cm,
+  width=6cm, height=10cm,
   bar width=32pt,
-  ymin=0, ymax=550,
+  ymin=0, ymax=200,
   axis x line=center,
   axis y line=left,
-  symbolic x coords={Bayes, EPOpt, QMDP, Best},
-  xtick={Bayes, EPOpt, QMDP, Best},
-  ytick={0,100,200,300,400,500},
+  symbolic x coords={Bayes, EPOpt},
+  xtick={Bayes, EPOpt},
+  % ytick={0,100,200,300,400,500},
   ylabel style={align=center},
   label style={font=\fontsize{15}{0}\selectfont},
   y tick label style={font=\fontsize{15}{0}\selectfont},
   x tick label style={font=\fontsize{15}{0}\selectfont},
 %  enlargelimits=true,
-  enlarge x limits=0.15,
+  enlarge x limits=0.5,
   ylabel={Average Return}]
-  \pgfplotstablegetelem{1}{1}\of\data
+  \pgfplotstablegetelem{1}{1}\of\cheetah
   \addplot[ybar,color=bayes_c,fill] coordinates {
         (Bayes,\pgfplotsretval)};
-  \pgfplotstablegetelem{1}{2}\of\data
+  \pgfplotstablegetelem{1}{2}\of\cheetah
   \addplot[ybar,color=epopt_c,fill] coordinates {
         (EPOpt,\pgfplotsretval)};
-  \pgfplotstablegetelem{1}{3}\of\data
-  \addplot[ybar,color=qmdp_c,fill] coordinates {
-        (QMDP,\pgfplotsretval)};
-  \pgfplotstablegetelem{1}{4}\of\data
-  \addplot[ybar,color=best_c,fill] coordinates {
-        (Best,\pgfplotsretval)};
     
-  \pgfplotstablegetelem{1}{1}\of\data
+  \pgfplotstablegetelem{1}{1}\of\cheetah
   \addplot+[
   black,
   only marks,
@@ -74,10 +71,10 @@
   ]
   coordinates {
   	(Bayes,\pgfplotsretval) +-
-  	\pgfplotstablegetelem{2}{1}\of\data
+  	\pgfplotstablegetelem{2}{1}\of\cheetah
   	(0,\pgfplotsretval) };
   
-  \pgfplotstablegetelem{1}{2}\of\data
+  \pgfplotstablegetelem{1}{2}\of\cheetah
   \addplot+[
   black,
   only marks,
@@ -90,41 +87,9 @@
   ]
   coordinates {
   	(EPOpt,\pgfplotsretval) +-
-  	\pgfplotstablegetelem{2}{2}\of\data
+  	\pgfplotstablegetelem{2}{2}\of\cheetah
   	(0,\pgfplotsretval) };
-  
-  \pgfplotstablegetelem{1}{3}\of\data
-  \addplot+[
-  black,
-  only marks,
-  mark=*,
-  mark options={black, scale=1.0},
-  error bars/.cd,
-  error bar style={solid},
-  y dir=both,
-  y explicit
-  ]
-  coordinates {
-  	(QMDP,\pgfplotsretval) +- 
-  	\pgfplotstablegetelem{2}{3}\of\data
-  	(0,\pgfplotsretval) };
-  
-  \pgfplotstablegetelem{1}{4}\of\data
-  \addplot+[
-  black,
-  only marks,
-  mark=*,
-  mark options={black, scale=1.0},
-  error bars/.cd,
-  error bar style={solid},
-  y dir=both,
-  y explicit
-  ]
-  coordinates { 
-  	(Best,\pgfplotsretval) +- 
-  	\pgfplotstablegetelem{2}{4}\of\data
-  	(0,\pgfplotsretval) };
-\end{axis}
+  \end{axis}
 
 \end{tikzpicture}
 \end{document}
