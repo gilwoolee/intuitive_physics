@@ -19,8 +19,11 @@
 \definecolor{qmdp_c}{rgb}{0.75, 0.75, 0.75}
 \definecolor{best_c}{rgb}{0.75, 0.75, 0.75}
 
-\pgfplotstableread[header=false, col sep=comma]{data/cheetah_env_nominal_combined.csv}{\nominal}
-\pgfplotstablegetcolsof{\nominal} % Determine no. of cols
+\pgfplotstableread[header=false, col sep=comma]{data/cheetah_average.csv}{\cheetah}
+\pgfplotstableread[header=false, col sep=comma]{data/ant_average.csv}{\ant}
+\pgfplotstableread[header=false, col sep=comma]{data/swimmer_average.csv}{\data}
+
+\pgfplotstablegetcolsof{\data} % Determine no. of cols
 \pgfmathsetmacro{\cols}{\pgfplotsretval}
 
 \pgfplotsset{ every non boxed x axis/.append style={x axis line style=-},
@@ -37,34 +40,31 @@
 \begin{document}
 \begin{tikzpicture}
 \begin{axis}[
-  width=12cm, height=12cm,
+  width=10cm, height=10cm,
   bar width=32pt,
-  ymin=0, ymax=550,
+  % ymin=0, ymax=200,
   axis x line=center,
   axis y line=left,
-  symbolic x coords={Bayes, EPOpt, QMDP, Best},
-  xtick={Bayes, EPOpt, QMDP, Best},
-  ytick={0,100,200,300,400,500},
+  symbolic x coords={Bayes, BMP, EPOpt},
+  xtick={Bayes, BMP, EPOpt},
+  % ytick={0,100,200,300,400,500},
   ylabel style={align=center},
   label style={font=\fontsize{15}{0}\selectfont},
   y tick label style={font=\fontsize{15}{0}\selectfont},
   x tick label style={font=\fontsize{15}{0}\selectfont},
   enlargelimits=true,
   ylabel={Average Return}]
-  \pgfplotstablegetelem{1}{1}\of\nominal
+  \pgfplotstablegetelem{1}{1}\of\ant
   \addplot[ybar,color=bayes_c,fill] coordinates {
         (Bayes,\pgfplotsretval)};
-  \pgfplotstablegetelem{1}{2}\of\nominal
+  \pgfplotstablegetelem{1}{0}\of\ant
+  \addplot[ybar,color=barl_c,fill] coordinates {
+        (BMP,\pgfplotsretval)};
+  \pgfplotstablegetelem{1}{2}\of\ant
   \addplot[ybar,color=epopt_c,fill] coordinates {
         (EPOpt,\pgfplotsretval)};
-  \pgfplotstablegetelem{1}{3}\of\nominal
-  \addplot[ybar,color=qmdp_c,fill] coordinates {
-        (QMDP,\pgfplotsretval)};
-  \pgfplotstablegetelem{1}{4}\of\nominal
-  \addplot[ybar,color=best_c,fill] coordinates {
-        (Best,\pgfplotsretval)};
     
-  \pgfplotstablegetelem{1}{1}\of\nominal
+  \pgfplotstablegetelem{1}{1}\of\ant
   \addplot+[
   black,
   only marks,
@@ -77,10 +77,26 @@
   ]
   coordinates {
   	(Bayes,\pgfplotsretval) +-
-  	\pgfplotstablegetelem{2}{1}\of\nominal
+  	\pgfplotstablegetelem{2}{1}\of\ant
   	(0,\pgfplotsretval) };
-   
-  \pgfplotstablegetelem{1}{2}\of\nominal
+  
+  \pgfplotstablegetelem{1}{0}\of\ant
+  \addplot+[
+  black,
+  only marks,
+  mark=*,
+  mark options={black, scale=1.0},
+  error bars/.cd,
+  error bar style={solid},
+  y dir=both,
+  y explicit
+  ]
+  coordinates {
+	(BMP,\pgfplotsretval) +-
+	\pgfplotstablegetelem{2}{0}\of\ant
+	(0,\pgfplotsretval) };
+  
+  \pgfplotstablegetelem{1}{2}\of\ant
   \addplot+[
   black,
   only marks,
@@ -93,41 +109,9 @@
   ]
   coordinates {
   	(EPOpt,\pgfplotsretval) +-
-  	\pgfplotstablegetelem{2}{2}\of\nominal
+  	\pgfplotstablegetelem{2}{2}\of\ant
   	(0,\pgfplotsretval) };
-  
-  \pgfplotstablegetelem{1}{3}\of\nominal
-  \addplot+[
-  black,
-  only marks,
-  mark=*,
-  mark options={black, scale=1.0},
-  error bars/.cd,
-  error bar style={solid},
-  y dir=both,
-  y explicit
-  ]
-  coordinates {
-  	(QMDP,\pgfplotsretval) +- 
-  	\pgfplotstablegetelem{2}{3}\of\nominal
-  	(0,\pgfplotsretval) };
-  
-  \pgfplotstablegetelem{1}{4}\of\nominal
-  \addplot+[
-  black,
-  only marks,
-  mark=*,
-  mark options={black, scale=1.0},
-  error bars/.cd,
-  error bar style={solid},
-  y dir=both,
-  y explicit
-  ]
-  coordinates { 
-  	(Best,\pgfplotsretval) +- 
-  	\pgfplotstablegetelem{2}{4}\of\nominal
-  	(0,\pgfplotsretval) };
-\end{axis}
+  \end{axis}
 
 \end{tikzpicture}
 \end{document}
