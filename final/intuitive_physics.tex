@@ -108,9 +108,15 @@ Without a notion of belief and uncertainty in its parameter estimates, UP-OSI is
 
 \begin{figure*}[t!]
 \centering
-\includegraphics[width=0.5\linewidth]{figs/model.pdf}
-\caption{Graphical model for a Bayes-Adaptive Markov Decision Process.}
+\begin{subfigure}[b]{0.45\columnwidth}
+\includegraphics[width=1\linewidth]{figs/model.pdf}
 \label{fig:pgm}
+\caption{Graphical model for a BAMDP}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\columnwidth}
+\includegraphics[width=1\linewidth]{figs/system_structure.pdf}
+\caption{Example of a Bayes-adpative agent}
+\end{subfigure}
 \end{figure*}
 
 We follow the BAMDP framework (\figref{fig:pgm}), which assumes that a latent variable $\phi$ governs the transition function of the underlying Markov Decision Process~\cite{ghavamzadeh2015bayesian, ross2008bayes, guez2012efficient}.
@@ -148,7 +154,6 @@ We make a simplification to the BAMDP formulation by assuming that the latent va
 % \footnote{
 % A looser assumption is that the rate of change of $\phi$ is slow enough that approximating the long-term value with the same $\phi$ is a reasonable short-term approximation for choosing the one-step action, i.e. we can treat $V^*(s_t, \phi_t) \approx V^*(s_t, \phi_{t:\infty})$ for a one-step Bellman update.
 % }
-As in POMDP-lite\cite{chen2016pomdp}, we can then view the simplified BAMDP model as a set of MDPs that are indexed by the latent variable $\phi$.
 
 % \begin{align*}
 % b(\phi_t) = P(\phi_t|s_{t-1}, \phi_{t-1}, a_{t-1})
@@ -176,11 +181,7 @@ where $Z$ is a normalizing constant and $P(\phi_{t+1} | \cdot) = 1$ is the deter
 
 \section{Bayes-Adaptive Policy Gradient}
 
-\begin{figure*}[t!]
-\centering
-\includegraphics[width=0.5\linewidth]{figs/system_structure.pdf}
-\caption{System structure}
-\end{figure*}
+
 
 The main contribution of our work is a policy-gradient algorithm which produces a universal policy that maintains different strategies for different beliefs. The key idea is to augment the state with the belief and provide this augmented feature as input to the policy. The policy is a function of both state and belief: $\pi: \mathcal{S} \times \mathcal{B} \rightarrow P(\mathcal{A})$, where $\mathcal{B}$ is the belief space. This allows the policy to differentiate between the beliefs while sharing globally effective strategies.
 
@@ -324,44 +325,44 @@ An immediately interesting avenue worth exploring is to exploit the mixture of e
 \begin{centering}
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.6\width} {0.4\height} {0.15\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_nominal.png}
-\caption{Nominal}
+\caption{Uses both feet}
 \end{subfigure}
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.5\width} {0.4\height} {0.25\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_170_92.png}
-\caption{Key frames}
+\caption{Uses front foot}
 \end{subfigure}
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.5\width} {0.4\height} {0.25\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_150_150.png}
-\caption{Key frames}
+\caption{Uses front knee}
 \end{subfigure}
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.4\width} {0.42\height} {0.35\width} {0.33\height}},clip=true]{figs/keyframes/ant/ant_nominal_18.png}
-\caption{Nominal}
+\caption{Uses all legs}
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.4\width} {0.42\height} {0.35\width} {0.33\height}},clip=true]{figs/keyframes/ant/ant_120_19.png}
-\caption{Key frames}
+\caption{Uses 3 legs}
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.6\width} {0.34\height} {0.15\width} {0.41\height}},clip=true]{figs/keyframes/ant/ant_140_87.png}
-\caption{Key frames}
+\caption{Uses 3 legs, 1 leg lifted}
 \end{subfigure}
 \vfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.55\width} {0.34\height} {0.20\width} {0.41\height}},clip=true]{figs/keyframes/swimmer/swimmer_nominal.png}
-\caption{Nominal}
+\caption{Wiggles head}
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.55\width} {0.40\height} {0.20\width} {0.35\height}},clip=true]{figs/keyframes/swimmer/swimmer_20_12.png}
-\caption{Key frames}
+\caption{Wiggles tail}
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.35\width} {.2\width} {0.416\width} {0.50\height}},clip=true]{figs/keyframes/swimmer/swimmer_40_157.png}
-\caption{Key frames}
+\caption{Wiggles head}
 \end{subfigure}
 \end{centering}
 \caption{Keyframes from rollouts on various MDPs. Some of the MDPs are significantly different, so they require drastically different policies to achieve high returns. See \url{https://goo.gl/DN7V9o} for videos.}
