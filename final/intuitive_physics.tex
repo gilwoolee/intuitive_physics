@@ -83,7 +83,7 @@ This enables the learned policy to be bold when confident in its model and cauti
 
 \section{Related Work}
 Our work is closely related to QMDP~\cite{littman1995learning, karkus2017qmdp} which is a Q-value approximation method for Partially Observable Markov Decision Processes (POMDPs).
-QMDP assumes a fully-observable MDP after one action by approximating the Q-value at the current belief state $b(s)$ as a weighted average over the fully-observable MDP's Q-values $Q_a(b) = \sum_s b(s)Q_{\text{MDP}}(s, a)$.
+QMDP assumes a fully-observable MDP after one action by approximating the Q-value at the current belief state $b(s)$ as a weighted average over the fully-observable MDP's Q-values, $Q_{\text{MDP}}(b, a) = \sum_s b(s)Q(s, a)$.
 The algorithm requires access to the (approximate) Q-function for the MDP.
 QMDP performs surprisingly well for many problems, but determinizing the belief distribution after one timestep breaks Bayes-optimality.
 
@@ -220,39 +220,61 @@ Note that the policy observes the \emph{evolution} of belief along each trajecto
 
 \section{Experiments}
 
-Our algorithm falls under the class of model-based algorithms that consider multiple MDPs to train a policy. We therefore compare our algorithm against (1) QMDP and (2) EPOpt. QMDP makes the assumption that $\phi$ is revealed after one step, and takes the best action given $b(\cdot)$, i.e. $a^* = \max R(s,b,a) + \sum_{\phi\in\Phi} b(\phi)Q(s,a,\phi)$. EPOpt is a minimax-style algorithm which trains the policy to be robust across multiple MDPs, without utilizing the belief over MDPs in learning the policy.
+Our algorithm falls under the class of model-based algorithms that consider multiple MDPs to train a policy.
+We compare our algorithm against others from this class, QMDP~\cite{littman1995learning, karkus2017qmdp} and EPOpt~\cite{rajeswaran2016epopt}.
+QMDP assumes that the latent state $\phi$ is revealed after one step, taking the action that maximizes $Q_{\text{MDP}}(s, a, b(\phi)) = \sum_{\phi \in \Phi} b(\phi) Q(s, a, \phi)$.
+EPOpt is a minimax-style algorithm which trains the policy to be robust across multiple MDPs, without utilizing the belief over MDPs in learning the policy.
 
-We evaluate the three algorithms on a set of simulated benchmark examples: \textbf{ant} ~\cite{schulman2015high}, \textbf{swimmer}~\cite{coulom2002reinforcement} and the \textbf{half-cheetah} (TODO cite) using the MuJoCo physics simulator~\cite{todorov2012mujoco}. 
-Owing to the numerous model parameters that can be varied to simulate multiple possible MDPs, these benchmarks prove to be ideal to test robustness against model discrepancies \ref{table:physicsParams}. 
-Each of the agents is provided a pre-defined reward function as in OpenAI Gym ~\cite{openai}. 
+We evaluate the three algorithms on a set of simulated benchmark examples from OpenAI Gym~\cite{openai-gym} using the MuJoCo physics simulator~\cite{todorov2012mujoco}: \texttt{Ant}, \texttt{Swimmer}, and \texttt{HalfCheetah}.
+Each of these environments has several model parameters that can be changed to simulate multiple possible MDPs.
+We uniformly sampled a wide range of parameters (e.g. body link length, mass, joint damping, friction) as described in \tabref{table:physicsParams}.
+For QMDP and BAPG, which maintain a belief over a discretized set of MDPs, we uniformly sampled a set of $K = 20$ environments.
+These $K$ environments represent the environments that the algorithms have access to in simulation, and can therefore use extensively during training.
 
-We implemented EPOpt as illustrated in \cite{rajeswaran2016epopt} with TRPO \cite{trpo} provided by \texttt{rllab}~\cite{duan2016benchmarking} as the underlying batch policy optimization sub-routine.
+We implemented EPOpt with Trust Region Policy Optimization (TRPO)~\cite{trpo} as the underlying batch policy optimization subroutine.
+We used the implementation of TRPO from \texttt{rllab}~\cite{duan2016benchmarking}.
 
-To implement QMDP and BAPG, for each agent, we uniformly sampled 20 MDPs across a range of parameters as in \ref{table:physicsParams} (e.g., body link length, mass, geometry size, joint damping, friction). QMDP used TRPO policies trained on the chosen 20 MDPs to rollout trajectories and approximate Q-functions. BAPG used these as the set of MDPs with which it approximates the belief space.
+QMDP used $K$ environment-specific policies (trained independently with TRPO on each of the chosen $K$ MDPs) to estimate $Q(s, a, \phi)$ with trajectory rollouts.
+At each time step, each environment-specific policy proposed an action candidate which was evaluated with the QMDP value function.
+The QMDP agent selected the action candidate with highest $Q_{\text{MDP}}(s, a, b(\phi)$.
 
-All the policy networks involved in the implementation of EPOpt and QMDP were Gaussian MLPs with two hidden layers $(64, 64)$. To account for a larger input space involving beliefs, the policy network for Bayes-Adaptive Policy Gradient was architect as a Gaussian MLP with hidden layers $(128, 64)$.
+All the policy networks used in EPOpt and QMDP were Gaussian MLPs, using two hidden layers of 64 units each and tanh activations.
+Because the BAPG policy network also takes the belief as input, the hidden layers consisted of 128 units and 64 units respectively.
 
-\subsection{Results}
-\subsubsection*{Hypothesis: Policies learned via BAPG balance robustness and optimality.}
+\subsection{Hypothesis: BAPG policies balance robustness and optimality}
 
-We successfully verify our hypothesis by comparing the three algorithms on two factors, namely, robustness to model discrepancy and performance. In Figure \ref{fig:nominal} we plot the average (undiscounted) return computed over 10 rollouts of the learned policy on an MDP uniformly sampled from the parameter space of half-cheetah. We observe that our algorithm outperforms EPOpt significantly and close behind QMDP. We attribute this the fact that the belief converges fairly soon in the trajectories and therefore QMDP , with access to optimal Q-functions outperforms our algorithm. We leave the experiments that involve sudden changes in the MDP to future work, where we believe QMDP would fail to perform as well. In Figures \ref{fig:oneFromK} and \ref{fig:all20}, we evaluate the performance of the algorithms on one of the 20 MDPs used for training. QMDP clearly outperforms the other two algorithms as it has access to the optimal Q-functions for each of these MDPs. We note that our algorithm again outperforms EPOpt on these select MDPs, which is expected since EPOpt does not take advantage of these MDPs during training.
+We compare the three algorithms on two factors: robustness to model discrepancy and performance.
+In \figref{fig:nominal} we plot the average (undiscounted) return computed over 10 rollouts of the learned policies on the unmodified \texttt{HalfCheetah} environment (which was not included as one of the $K$ environments that were available in simulation, but was the mean of the uniform parameter distributions).
 
-Our experiments demonstrate the robustness of our algorithm in handling model discrepancy over a wide range of parameter space. We learn one universal policy that adapts to different MDPs while maintaining a belief over the sampled MDPs. In Figure \ref{fig:frames}, we note the MDPs to be geometrically significantly different that result in different dynamics. Our learned policy network is capable of generating different policies for each of these MDPs to achieve the optimal returns. See \url{http://shorturl.at/efxBI} for videos.
+We observe that our algorithm significantly outperforms EPOpt and achieves similar performance to QMDP.
+We believe that QMDP performs well when the belief quickly becomes certain in a particular MDP, which is close to the true MDP.
+Then, the QMDP agent will effectively use the policy that was trained on that MDP, which would likely perform well on the true MDP.
+However, if none of the $K$ MDPs are close to the true MDP, it is difficult to make performance guarantees for QMDP.
+
+In Figures \ref{fig:oneFromK} and \ref{fig:all20}, we evaluate the performance of the algorithms on one of the $K$ MDPs used for training.
+QMDP clearly outperforms the other two algorithms as it has access to the $K$ trained policies, and the belief will quickly concentrate around that MDP.
+We note that our algorithm again outperforms EPOpt on these select MDPs, which is expected since EPOpt does not take advantage of these MDPs during training.
+
+Our experiments demonstrate the robustness of BAPG toward model uncertainty over a wide range of parameter space.
+We learn one universal policy that adapts to different MDPs by maintaining a belief over the sampled MDPs.
+In \figref{fig:frames}, we can see that the sampled MDPs result in drastically different dynamics.
+Our learned policy network is capable of generating different policies for each of these MDPs to achieve high reward.
+Videos are available at \url{https://goo.gl/DN7V9o}.
 
 \begin{table}[ht]
-\caption{Model Parameter Variation}
 \centering
 \begin{tabular}{l c} % centered columns (4 columns)
 \hline\hline %inserts double horizontal lines
-Parameter & Variation \\ [0.5ex] % inserts table
+Parameter & Variation \\ %[0.5ex] % inserts table
 %heading
 \hline % inserts single horizontal line
-\rule{0pt}{2ex}  
 Damping & $\pm50\%$\\
 Friction & $\pm50\%$\\
-Body link size & $\pm50\%$\\ [1ex] % [1ex] adds vertical space
+Body link size & $\pm50\%$\\% [1ex] % [1ex] adds vertical space
 \hline %inserts single line
 \end{tabular}
+\bigskip
+\caption{Model Parameter Variation}
 \label{table:physicsParams}
 \end{table}
 
@@ -277,14 +299,17 @@ Body link size & $\pm50\%$\\ [1ex] % [1ex] adds vertical space
 \label{fig:all20}
 \end{subfigure}
 \end{centering}
-\caption{Return on a uniformly sampled and prechosen MDPs.}
+\caption{Mean returns on uniformly sampled and prechosen \texttt{HalfCheetah} environments.}
 \label{fig:Bars}
 \end{figure*}
 
 
 
 \section{Conclusion and Future Work}
-We presented a policy-gradient algorithm that, by maintaining a belief over the MDPs, achieves robustness to model variations and disturbances without compromising significantly on the optimality. While in this work our belief was over discrete MDPs, there is a natural extension to maintaining a continuous belief distribution either over the MDPs or over the parameter space directly. A possible extension to enable exploration and distinguish policies (and not just beliefs) is to augment the reward to encourage actions that achieve an information gain. An immediate interesting avenue worth exploring is to exploit the framework of mixture of experts to consider the action proposals from the MDPs along with the belief.
+We presented a policy-gradient algorithm that, by maintaining a belief over latent physical parameters, achieves robustness to model variations and disturbances without compromising significantly on the optimality.
+While in this work our belief was over a discrete set of MDPs, there is a natural extension to maintaining a continuous belief distribution either over the MDPs or over the parameter space directly.
+A possible extension to enable exploration and distinguish policies (and not just beliefs) is to augment the reward to encourage actions that achieve an information gain.
+An immediately interesting avenue worth exploring is to exploit the mixture of experts framework to consider the action proposals from the MDPs along with the belief.
 
 
 %\begin{itemize}
