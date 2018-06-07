@@ -232,12 +232,12 @@ To implement QMDP and BAPG, for each agent, we uniformly sampled 20 MDPs across 
 
 All the policy networks involved in the implementation of EPOpt and QMDP were Gaussian MLPs with two hidden layers $(64, 64)$. To account for a larger input space involving beliefs, the policy network for Bayes-Adaptive Policy Gradient was architect as a Gaussian MLP with hidden layers $(128, 64)$.
 
-\begin{itemize}
-    \item By augmenting the observation with a belief over  MDPs, policy networks can learn to be robust against    model uncertainty while maintaining some of the
-    ``optimal'' actions w.r.t. each MDP.
-    \item When the optimal policies across MDPs have a lot in   common (e.g., Swimmer), simple "interpolation" of the deterministic policies provide good action proposals,
-    suggesting that a mixture of policies (with a large number of policies that cover the space), may reduce sample complexity and offer even better performance.
-\end{itemize}
+\subsection{Results}
+\subsubsection*{Hypothesis: Policies learned via BAPG balance robustness and optimality.}
+
+We successfully verify our hypothesis by comparing the three algorithms on two factors, namely, robustness to model discrepancy and performance. In Figure \ref{fig:nominal} we plot the average (undiscounted) return computed over 10 rollouts of the learned policy on an MDP uniformly sampled from the parameter space of half-cheetah. We observe that our algorithm outperforms EPOpt significantly and close behind QMDP. We attribute this the fact that the belief converges fairly soon in the trajectories and therefore QMDP , with access to optimal Q-functions outperforms our algorithm. We leave the experiments that involve sudden changes in the MDP to future work, where we believe QMDP would fail to perform as well. In Figures \ref{fig:oneFromK} and \ref{fig:all20}, we evaluate the performance of the algorithms on one of the 20 MDPs used for training. QMDP clearly outperforms the other two algorithms as it has access to the optimal Q-functions for each of these MDPs. We note that our algorithm again outperforms EPOpt on these select MDPs, which is expected since EPOpt does not take advantage of these MDPs during training.
+
+Our experiments demonstrate the robustness of our algorithm in handling model discrepancy over a wide range of parameter space. We learn one universal policy that adapts to different MDPs while maintaining a belief over the sampled MDPs. In Figure \ref{fig:frames}, we note the MDPs to be geometrically significantly different that result in different dynamics. Our learned policy network is capable of generating different policies for each of these MDPs to achieve the optimal returns (TODO: Insert link here).
 
 \begin{table}[ht]
 \caption{Model Parameter Variation}
@@ -262,30 +262,36 @@ Body-Link-Size & $\pm50\%$\\ [1ex] % [1ex] adds vertical space
 \begin{subfigure}[b]{0.24\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_nominal_comparison.pdf}
 \subcaption{Nominal MDP}
+\label{fig:nominal}
 \end{subfigure}
 ~
 \begin{subfigure}[b]{0.24\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_env_comparison.pdf}
 \subcaption{One of K MDPs}
+\label{fig:oneFromK}
 \end{subfigure}
 ~
 \begin{subfigure}[b]{0.22\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_average.pdf}
 \subcaption{Over 20 MDPs}
+\label{fig:all20}
 \end{subfigure}
 \end{centering}
 \caption{Return on sampled and prechosen MDPs. BARL is better than EPOpt. On average across K pre-chosen MDPs, it outperforms EPOpt by a large margin. TODO: remove BMP.}
+\label{fig:Bars}
 \end{figure*}
 
 
 
-\section{Future Work}
+\section{Conclusion and Future Work}
+We presented a policy-gradient algorithm that, by maintaining a belief over the MDPs, achieves robustness to model variations and disturbances without compromising significantly on the optimality. While in this work our belief was over discrete MDPs, there is a natural extension to maintaining a continuous belief distribution either over the MDPs or over the parameter space directly. A possible extension to enable exploration and distinguish policies (and not just beliefs) is to augment the reward to encourage actions that achieve an information gain. An immediate interesting avenue worth exploring is to exploit the framework of mixture of experts to consider the action proposals from the MDPs along with the belief.
 
-\begin{itemize}
-    \item Extend to a continuous version which has Gaussian belief distribution as input
-    \item Bootstrap a set of stochastic/deterministic policies, each trained for one MDP or a small range of parameters
-    \item Train with additional reward bonus for information gain which helps distinguishing policies (not just beliefs)
-\end{itemize}
+
+%\begin{itemize}
+%    \item Extend to a continuous version which has Gaussian belief distribution as input
+%    \item Bootstrap a set of stochastic/deterministic policies, each trained for one MDP or a small range of parameters
+%    \item Train with additional reward bonus for information gain which helps distinguishing policies (not just beliefs)
+%\end{itemize}
 
 
 \begin{figure*}[t!]
@@ -333,6 +339,7 @@ Body-Link-Size & $\pm50\%$\\ [1ex] % [1ex] adds vertical space
 \end{subfigure}
 \end{centering}
 \caption{Keyframes from rollouts on various MDPs. Some of the MDPs are gemeotrically significatnly differnt that they require drastically different policies to achieve optimal returns.}
+\label{fig:frames}
 \end{figure*}
 
 \bibliography{intuitive_physics}
