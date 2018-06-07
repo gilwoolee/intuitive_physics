@@ -238,7 +238,7 @@ We used the implementation of TRPO from \texttt{rllab}~\cite{duan2016benchmarkin
 
 QMDP used $K$ environment-specific policies (trained independently with TRPO on each of the chosen $K$ MDPs) to estimate $Q(s, a, \phi)$ with trajectory rollouts.
 At each time step, each environment-specific policy proposed an action candidate which was evaluated with the QMDP value function.
-The QMDP agent selected the action candidate with highest $Q_{\text{MDP}}(s, a, b(\phi)$.
+The QMDP agent selected the action candidate with highest $Q_{\text{MDP}}(s, a, b(\phi))$.
 
 All the policy networks used in EPOpt and QMDP were Gaussian MLPs, using two hidden layers of 64 units each and tanh activations.
 Because the BAPG policy network also takes the belief as input, the hidden layers consisted of 128 units and 64 units respectively.
