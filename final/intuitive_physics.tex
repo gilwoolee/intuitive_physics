@@ -78,7 +78,7 @@ Model-based reinforcement learning techniques offer an opportunity to overcome t
 The primary challenge with model-based techniques is the discrepancy between simulation and the real world.
 Simplified models, inaccurate or uncertain parameters that govern the dynamics of the model, and other unmodeled disturbances and noise can render the policies learned on the simulated model ineffective on the real system.
 
-We propose a model-based algorithm that learns a universal policy for Bayes-Adaptive Markov Decision Process (BAMDP) that is robust and optimal to model uncertainty and disturbances. Although the real system's exact physical parameters are unknown, we can maintain a belief distribution over those parameters and provide this belief as an additional input to the policy.
+We propose a model-based algorithm that learns a universal policy for Bayes-adaptive MDP that is robust and optimal to model uncertainty and disturbances. Although the real system's exact physical parameters are unknown, we can maintain a belief distribution over those parameters and provide this belief as an additional input to the policy.
 This enables the learned policy to be bold when confident in its model and cautious when there is high model uncertainty.
 
 \section{Related Work}
@@ -113,8 +113,8 @@ TODO: mention \cite{guez2014bayes} and other bayesian work.
 \label{fig:pgm}
 \end{figure*}
 
-We follow the BAMDP framework (\figref{fig:pgm}), which assumes that a latent variable $\phi$ governs the transition function of the underlying Markov Decision Process~\cite{ghavamzadeh2015bayesian, ross2008bayes, guez2012efficient}.
-A BAMDP is defined by a tuple $\langle \mathcal{S}', \mathcal{A}, P, P_0, R \rangle$, where
+We follow the Bayes-Adaptive Markov Decision Process framework (\figref{fig:pgm}), which assumes that a latent variable $\phi$ governs the transition function of the underlying Markov Decision Process~\cite{ghavamzadeh2015bayesian, ross2008bayes, guez2012efficient}.
+A Bayes-Adaptive MDP is defined by a tuple $\langle \mathcal{S}', \mathcal{A}, P, P_0, R \rangle$, where
 \begin{itemize}
 \item $\mathcal{S'} = \mathcal{S}\times \Phi$ is the set of hyper-states (state $s$, latent variable $\phi$),
 \item $\mathcal{A}$ is the set of actions,
@@ -128,7 +128,7 @@ In our setting of robot control, the latent variables $\phi$ are physics paramet
 
 Our goal is to find the Bayes-optimal policy for the following Bellman equaton:
 \begin{equation}\label{eq:rl}
-V^*(b, s) = \max_a \bigg\{R(s, b, a) + \gamma \sum_{s'}P(s', b'|s, b, a)V^*(b', s') \bigg\}
+V^*(b, s) = \max_a \bigg\{R(s, b, a) + \gamma \sum_{s'}P(s', b'|s, b, a)V^*(b', s') \bigg\}.
 \end{equation}
 where $b(\phi)$ is the belief over the set of latent physics parameters $\phi \in \Phi$,
 \begin{align*}
@@ -136,7 +136,7 @@ R(s, b, a)
   &= \sum_{\phi \in \Phi} b(\phi) R(s, \phi, a) \\
 P(s', b' | s, b, a)
   &= \sum_{\phi \in \Phi} b(\phi) P(s', b' | s, \phi, a) \\
-  &= \sum_{\phi \in \Phi} b(\phi) P(s' | s, \phi, a) \sum_{\phi' \in \Phi} P(\phi' | s, \phi, a).
+  &= \sum_{\phi \in \Phi} b(\phi) P(s' | s, \phi, a) \sum_{\phi' \in \Phi} P(\phi' | s, \phi, a)
 \end{align*}
 
 TODO(?): mention PAC-MDP?
@@ -183,17 +183,17 @@ where $Z$ is a normalizing constant and $P(\phi_{t+1} | \cdot) = 1$ is the deter
 
 The main contribution of our work is a policy-gradient algorithm which produces a universal policy that maintains different strategies for different beliefs. The key idea is to augment the state with the belief and provide this augmented feature as input to the policy. The policy is a function of both state and belief: $\pi: \mathcal{S} \times \mathcal{B} \rightarrow P(\mathcal{A})$, where $\mathcal{B}$ is the belief space. This allows the policy to differentiate between the beliefs while sharing globally effective strategies.
 
-In order for this algorithm to work in practice, we need an effective representation of the belief space. If the space of MDPs $\mathcal{M}$ is finite, the belief $b$ can be a vector of size $|\mathcal{M}|$. If $\mathcal{M}$ is infinite, we propose two methods to approximate the belief space:
+In order for this algorithm to work in practice, we need an effective representation of the belief space. If the space of MDPs, $\mathcal{M}$, is finite, the belief $b$ can be a vector of size $|\mathcal{M}|$. In case where $\mathcal{M}$ is infinite, we propose two methods to approximate the belief space:
 
 \begin{itemize}
     \item Sample $K$ MDPs from the prior belief distribution $b_0$ and use belief over these $K$ MDPs
     \item Discretize the parameter space and use belief over the parameter space
 \end{itemize}
-In the first case, we use a vector of size $K$ as $b$; $K$ should be large enough to approximate all MDPs with the $K$ sampled ones. In the second case, assuming the latent parameters are independent, the belief is represented as a vector of size $(N_1 + .... + N_M)$ where $M$ is the total number of parameters and $N_m$ is the discretization of the $m$-th parameter. In this project, we have implemented the first one and leave the second one for future work.
+In the first case, we use a vector of size $K$ as $b$; $K$ should be large enough to approximate all MDPs with the K sampled ones. In the second case, assuming the latent parameters are independent, the belief is represented as a vector of size $(N_1 + .... + N_M)$ where $M$ is the total number of parameters and $N_m$ is the discretization of the $m$-th parameter. In this project we have implemented the first one, and leave the second one as future work.
 
-The algorithm is shown in \aref{algo:bapg}. At each iteration, we sample a number of MDPs from the prior distribution $b_0$, and sample a trajectory for each MDP using the current policy. During the rollout of the trajectory, the estimator provides the updated belief estimate as an additional feature to the policy. The estimator resets to $b_0$ at the beginning of each trajectory.
+The algorithm is shown in \aref{algo:bapg}. At each iteration, we sample a number of MDPs from the prior distribution $b_0$, and sample a trajectory for each MDP using the latest policy. During the rollout of the trajectory, the estimator provides the updated belief estimate as an additional feature to the policy. The estimator resets to $b_0$ at the beginning of each trajectory.
 
-Note that the policy observes the \emph{evolution} of belief along each trajectory. This allows the policy to learn to be optimal with respect to the evolution of belief, and to take actions which affect the evolution. For example, given prior belief $b_0$ with high entropy (i.e., high uncertainty), our algorithm policy would produce conservative or informative actions until $b$ becomes informative enough along the course of the trajectory. This is a key difference between our algorithm and UP-OSI~\cite{yu2017uposi}, in which the universal policy has no notion of belief or uncertainty.
+Note that the policy observes the \emph{evolution} of belief along each trajectory. This allows the policy to learn to be optimal with respect to the evolution of belief, and to take actions which affect the evolution. For example, given prior belief $b_0$ with high entropy (i.e., high uncertainty), our algorithm policy would produce conservative or informative actions until $b$ becomes informative enough along the course of the trajectory. This is a key difference between our algorithm and \cite{yu2017uposi}, in which the policy has no notion of belief or uncertainty.
 
 %%\newcommand{\argmin}{\operatornamewithlimits{\arg\min}}
 %
@@ -202,19 +202,19 @@ Note that the policy observes the \emph{evolution} of belief along each trajecto
 % Algorithm:
 %------------------------------------------%
 \begin{algorithm}[tb]
-\caption{Bayes-Adaptive Policy Gradient}
+\caption{\texttt{Bayes-Adaptive Policy Gradient}}
 \label{algo:bapg}
 \begin{algorithmic}[1]
-\Require Bayes-Estimator $ES$, $b_0$, $\mathcal{M}$, initial policy $\theta_0$, $n_\text{itr}, n_\text{sample}$
+\State Bayes-Estimator $ES$, $b_0$, $\theta_0$, $n_\text{itr}$, $n_\text{sample}, \mathcal{M}$\Comment{Initialization}
 \vspace{2mm}
-\For{$i = 1, 2, \ldots, n_\text{itr}$}
-  \For{$n = 1, 2 , \ldots, n_\text{sample}$}
+\For{i = 1, 2, ..., $n_\text{itr}$}
+  \For{n = 1, 2 , ..., $n_\text{sample}$}
     \State Reset $ES$ with $b_0$
     \State Sample model parameter $\phi \sim b_0$ to get $M_{\phi}$
     \State Sample a trajectory $\tau_n$ from $M_{\phi}$ using policy $\pi(\theta_i)$ and estimator $ES$
   \EndFor
-  \State Update policy: $\theta_{i+1} = \texttt{BatchPolicyOptimization}(\theta_i, \{\tau_1, ..., \tau_{n_{sample}}\})$
 \EndFor
+\State Update policy: $\pi(\theta_{i+1}) = \texttt{BatchPolOpt}(\theta_i, \{\tau_1, ..., \tau_{n_{sample}}\})$
 \end{algorithmic}
 \end{algorithm}
 
@@ -226,12 +226,12 @@ We evaluate the three algorithms on a set of simulated benchmark examples: ant (
 Owing to the numerous model parameters that can be varied to simulate multiple possible MDPs, these benchmarks prove to be ideal to test robustness against model discrepancies (TODO: refer the tables). 
 Each of the agents is provided a pre-defined reward function as in OpenAI Gym ~\cite{openai}. 
 
-%For each agent, we uniformly sampled 20 MDPs across a range of parameters as in (TODO: refer the table) (e.g., body link length, mass, geometry size, joint damping, friction), and used these as the set of MDPs with which we approximate the belief space.
-%
-%We implemented EPOpt as in \cite{rajeswaran2016epopt} with TRPO \cite{trpo} provided by \texttt{rllab}~\cite{duan2016benchmarking} as the underlying batch policy optimization sub-routine.
-%Our implementation of QMDP uses TRPO policies trained on the chosen 20 MDPs to rollout trajectories and approximate Q-functions. EPOpt
-%
-%All policy networks were Gaussian MLPs with two layers, (64, 64), except for Bayes ones which had (128, 64) to account for the larger input space.
+For each agent, we uniformly sampled 20 MDPs across a range of parameters as in (TODO: refer the table) (e.g., body link length, mass, geometry size, joint damping, friction), and used these as the set of MDPs with which we approximate the belief space.
+
+We implemented EPOpt as in \cite{rajeswaran2016epopt} with TRPO \cite{trpo} provided by \texttt{rllab}~\cite{duan2016benchmarking} as the underlying batch policy optimization sub-routine.
+Our implementation of QMDP uses TRPO policies trained on the chosen 20 MDPs to rollout trajectories and approximate Q-functions. EPOpt
+
+All policy networks were Gaussian MLPs with two layers, (64, 64), except for Bayes ones which had (128, 64) to account for the larger input space.
 
 \begin{itemize}
     \item By augmenting the observation with a belief over  MDPs, policy networks can learn to be robust against    model uncertainty while maintaining some of the
@@ -241,7 +241,7 @@ Each of the agents is provided a pre-defined reward function as in OpenAI Gym ~\
 \end{itemize}
 
 \begin{table}[ht]
-\caption{Model Parameters} 
+\caption{Model Parameters}
 \centering
 \begin{tabular}{l c c c c} % centered columns (4 columns)
 \hline\hline %inserts double horizontal lines
@@ -256,7 +256,7 @@ Deadpool & 5 & 45 & 300 & 556 \\
 Front-Link-Length & 3 & 31 & 25 & 415 \\ [1ex] % [1ex] adds vertical space
 \hline %inserts single line
 \end{tabular}
-\label{table:}
+\label{physicsParams}
 \end{table}
 
 
@@ -332,7 +332,7 @@ Front-Link-Length & 3 & 31 & 25 & 415 \\ [1ex] % [1ex] adds vertical space
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.3\columnwidth}
-\adjincludegraphics[height=3cm,trim={{.35\width} {.2\width} {0.416\width} {0.50\height}},clip=true]{figs/keyframes/swimmer/swimmer_40_157.png}
+\adjincludegraphics[height=3cm,trim={{.35\width} 0 {0.40\width} {0.55\height}},clip=true]{figs/keyframes/swimmer/swimmer_40_157.png}
 \caption{Key frames}
 \end{subfigure}
 \end{centering}
