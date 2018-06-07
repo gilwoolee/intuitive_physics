@@ -102,7 +102,7 @@ Another recent approach to model uncertainty is UP-OSI~\cite{yu2017uposi}, which
 However, UP-OSI only uses the mean estimate of those parameters as an additional input to the policy.
 Without a notion of belief and uncertainty in its parameter estimates, UP-OSI is prone to aggressively executing policies without being conservative toward remaining model uncertainty.
 
-TODO: mention \cite{guez2014bayes} and other bayesian work.
+% TODO: mention \cite{guez2014bayes} and other bayesian work.
 
 \section{Bayes-Adaptive Reinforcement Learning}
 
@@ -124,7 +124,8 @@ on action $a$ being taken in hyper-state $(s, \phi)$,
 \item $R(s, \phi, a)$ represents the reward obtained when action $a$ is
 taken in hyper-state $(s,\phi)$.
 \end{itemize}
-In our setting of robot control, the latent variables $\phi$ are physics parameters such as mass and length of different robot links (TODO: better word than links) (JS: robot bodies?).
+In our setting of robot control, the latent variables $\phi$ are physics parameters such as mass and length of different robot links.
+% (TODO: better word than links) (JS: robot bodies?).
 
 Our goal is to find the Bayes-optimal policy for the following Bellman equaton:
 \begin{equation}\label{eq:rl}
@@ -139,7 +140,7 @@ P(s', b' | s, b, a)
   &= \sum_{\phi \in \Phi} b(\phi) P(s' | s, \phi, a) \sum_{\phi' \in \Phi} P(\phi' | s, \phi, a).
 \end{align*}
 
-TODO(?): mention PAC-MDP?
+% TODO(?): mention PAC-MDP?
 
 \subsection{Belief Update}
 
