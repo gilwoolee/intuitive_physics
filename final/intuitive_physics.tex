@@ -222,7 +222,7 @@ Note that the policy observes the \emph{evolution} of belief along each trajecto
 
 Our algorithm falls under the class of model-based algorithms that consider multiple MDPs to train a policy. We therefore compare our algorithm against (1) QMDP and (2) EPOpt. QMDP makes the assumption that $\phi$ is revealed after one step, and takes the best action given $b(\cdot)$, i.e. $a^* = \max R(s,b,a) + \sum_{\phi\in\Phi} b(\phi)Q(s,a,\phi)$. EPOpt is a minimax-style algorithm which trains the policy to be robust across multiple MDPs, without utilizing the belief over MDPs in learning the policy.
 
-We evaluate the three algorithms on a set of simulated benchmark examples: ant (TODO cite), swimmer (TODO cite) and the half-cheetah (TODO cite) using the MuJoCo physics simulator (TODO cite). 
+We evaluate the three algorithms on a set of simulated benchmark examples: \textbf{ant} (TODO cite), \textbf{swimmer} (TODO cite) and the \textbf{half-cheetah} (TODO cite) using the MuJoCo physics simulator (TODO cite). 
 Owing to the numerous model parameters that can be varied to simulate multiple possible MDPs, these benchmarks prove to be ideal to test robustness against model discrepancies \ref{table:physicsParams}. 
 Each of the agents is provided a pre-defined reward function as in OpenAI Gym ~\cite{openai}. 
 
@@ -259,25 +259,25 @@ Body-Link-Size & $\pm50\%$\\ [1ex] % [1ex] adds vertical space
 
 \begin{figure*}[t!]
 \begin{centering}
-\begin{subfigure}[b]{0.24\columnwidth}
+\begin{subfigure}[b]{0.3\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_nominal_comparison.pdf}
 \subcaption{Nominal MDP}
 \label{fig:nominal}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.24\columnwidth}
+\begin{subfigure}[b]{0.3\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_env_comparison.pdf}
-\subcaption{One of K MDPs}
+\subcaption{One of 20 MDPs}
 \label{fig:oneFromK}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.22\columnwidth}
+\begin{subfigure}[b]{0.29\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_average.pdf}
 \subcaption{Over 20 MDPs}
 \label{fig:all20}
 \end{subfigure}
 \end{centering}
-\caption{Return on sampled and prechosen MDPs. BARL is better than EPOpt. On average across K pre-chosen MDPs, it outperforms EPOpt by a large margin. TODO: remove BMP.}
+\caption{Return on a uniformly sampled and prechosen MDPs.}
 \label{fig:Bars}
 \end{figure*}
 
