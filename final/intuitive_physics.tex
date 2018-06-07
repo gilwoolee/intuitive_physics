@@ -177,7 +177,7 @@ where $Z$ is a normalizing constant and $P(\phi_{t+1} | \cdot) = 1$ is the deter
 \begin{figure*}[t!]
 \centering
 \includegraphics[width=0.5\linewidth]{figs/system_structure.pdf}
-\caption{Bayes-Adaptive Reinforcement Learning}
+\caption{System structure}
 \end{figure*}
 
 The main contribution of our work is a policy-gradient algorithm which produces a universal policy that maintains different strategies for different beliefs. The key idea is to augment the state with the belief and provide this augmented feature as input to the policy. The policy is a function of both state and belief: $\pi: \mathcal{S} \times \mathcal{B} \rightarrow P(\mathcal{A})$, where $\mathcal{B}$ is the belief space. This allows the policy to differentiate between the beliefs while sharing globally effective strategies.
@@ -219,9 +219,19 @@ Note that the policy observes the \emph{evolution} of belief along each trajecto
 
 \section{Experiments}
 
-Our algorithm is compared against the following algorithms  (1) QMDP, (2) EPOpt. QMDP makes the assumption that $\phi$ is revealed after one step, and takes the best action given $b(\cdot)$, i.e. $a* = \max R(s,b,a) + \sum_{\phi\in\Phi} b(\phi)Q(s,a,\phi)$. EPOpt is a minimax-style algorithm which trains the policy to be robust across multiple MDPs, without utilizing the belief in the policy.
+Our algorithm falls under the class of model-based algorithms that consider multiple MDPs to train a policy. We therefore compare our algorithm against (1) QMDP and (2) EPOpt. QMDP makes the assumption that $\phi$ is revealed after one step, and takes the best action given $b(\cdot)$, i.e. $a^* = \max R(s,b,a) + \sum_{\phi\in\Phi} b(\phi)Q(s,a,\phi)$. EPOpt is a minimax-style algorithm which trains the policy to be robust across multiple MDPs, without utilizing the belief over MDPs in learning the policy.
 
-We have setup a set of simulated examples and a set of RL algorithms to be utilized in our ensemble approach. For simulated examples, we have the following agents: \textbf{ant, swimmer, half-cheetah}, each with a predefined reward function defined similar to those given by OpenAI Gym~\cite{openai}.For each environment, we uniformly sampled 20 MDPs across a range of parameters (e.g., body link length, mass, geometry size, joint damping, friction), and used these as the set of MDPs with which we approximate the belief space.  We have implemented EPOpt based on the paper. Both EPOpt and BAPO use TRPO provide by \texttt{rllab}~\cite{duan2016benchmarking} as the batch policy optimization algorithm. All policy networks were Gaussian MLPs with two layers, (64, 64), except for Bayes ones which had (128, 64) to account for the larger input space. For QMDP, we used TRPO policies trained on the chosen 20 MDPs to rollout trajectories and approximate Q-functions.
+We evaluate the three algorithms on a set of simulated benchmark examples: ant (TODO cite), swimmer (TODO cite) and the half-cheetah (TODO cite) using the MuJoCo physics simulator (TODO cite). 
+Owing to the numerous model parameters that can be varied to simulate multiple possible MDPs, these benchmarks prove to be ideal to test robustness against model discrepancies. 
+Each of the agents is provided a pre-defined reward function as in OpenAI Gym ~\cite{openai}. 
+For each agent, we uniformly sampled 20 MDPs across a range of parameters (e.g., body link length, mass, geometry size, joint damping, friction), and used these as the set of MDPs with which we approximate the belief space.
+
+
+
+
+
+
+We have implemented EPOpt based on the paper. Both EPOpt and BAPO use TRPO provide by \texttt{rllab}~\cite{duan2016benchmarking} as the batch policy optimization algorithm. All policy networks were Gaussian MLPs with two layers, (64, 64), except for Bayes ones which had (128, 64) to account for the larger input space. For QMDP, we used TRPO policies trained on the chosen 20 MDPs to rollout trajectories and approximate Q-functions.
 
 \begin{itemize}
     \item By augmenting the observation with a belief over  MDPs, policy networks can learn to be robust against    model uncertainty while maintaining some of the
@@ -233,22 +243,22 @@ We have setup a set of simulated examples and a set of RL algorithms to be utili
 
 \begin{figure*}[t!]
 \begin{centering}
-\begin{subfigure}[b]{0.3\columnwidth}
+\begin{subfigure}[b]{0.24\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_nominal_comparison.pdf}
 \subcaption{Nominal MDP}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.3\columnwidth}
+\begin{subfigure}[b]{0.24\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_env_comparison.pdf}
 \subcaption{One of K MDPs}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.235\columnwidth}
+\begin{subfigure}[b]{0.22\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_average.pdf}
 \subcaption{Over 20 MDPs}
 \end{subfigure}
-\caption{Return on sampled and prechosen MDPs. BARL is better than EPOpt. On average across K pre-chosen MDPs, it outperforms EPOpt by a large margin. TODO: remove BMP.}
 \end{centering}
+\caption{Return on sampled and prechosen MDPs. BARL is better than EPOpt. On average across K pre-chosen MDPs, it outperforms EPOpt by a large margin. TODO: remove BMP.}
 \end{figure*}
 
 
@@ -268,17 +278,14 @@ We have setup a set of simulated examples and a set of RL algorithms to be utili
 \adjincludegraphics[height=3cm,trim={{.6\width} {0.4\height} {0.15\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_nominal.png}
 \caption{Nominal}
 \end{subfigure}
-\hfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.5\width} {0.4\height} {0.25\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_170_92.png}
 \caption{Key frames}
 \end{subfigure}
-\hfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.5\width} {0.4\height} {0.25\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_150_150.png}
 \caption{Key frames}
 \end{subfigure}
-\vfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.4\width} {0.42\height} {0.35\width} {0.33\height}},clip=true]{figs/keyframes/ant/ant_nominal_18.png}
 \caption{Nominal}
@@ -308,8 +315,8 @@ We have setup a set of simulated examples and a set of RL algorithms to be utili
 \adjincludegraphics[height=3cm,trim={{.35\width} 0 {0.40\width} {0.55\height}},clip=true]{figs/keyframes/swimmer/swimmer_40_157.png}
 \caption{Key frames}
 \end{subfigure}
-\caption{Keyframes from rollouts on various MDPs. Some of the MDPs are gemeotrically significatnly differnt that they require drastically different policies to achieve optimal returns.}
 \end{centering}
+\caption{Keyframes from rollouts on various MDPs. Some of the MDPs are gemeotrically significatnly differnt that they require drastically different policies to achieve optimal returns.}
 \end{figure*}
 
 \bibliography{intuitive_physics}
