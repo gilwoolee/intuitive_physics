@@ -188,7 +188,7 @@ In order for this algorithm to work in practice, we need an effective representa
     \item Sample $K$ MDPs from the prior belief distribution $b_0$ and use belief over these $K$ MDPs
     \item Discretize the parameter space and use belief over the parameter space
 \end{itemize}
-In the first case, we use a vector of size $K$ as $b$; $K$ should be large enough to approximate all MDPs with the K sampled ones. In the second case, assuming the latent parameters are independent, the belief is represented as a vector of size $(N_1 + .... + N_M)$ where $M$ is the total number of parameters and $N_m$ is the discretization of the $m$-th parameter. In this project we have implemented the first one, and leave the second one as future work.
+In the first case, we use a vector of size $K$ as $b$; $K$ should be large enough to approximate all MDPs with the $K$ sampled ones. In the second case, assuming the latent parameters are independent, the belief is represented as a vector of size $(N_1 + .... + N_M)$ where $M$ is the total number of parameters and $N_m$ is the discretization of the $m$-th parameter. In this project, we have implemented the first one, and leave the second one for future work.
 
 The algorithm is shown in \aref{algo:bapg}. At each iteration, we sample a number of MDPs from the prior distribution $b_0$, and sample a trajectory for each MDP using the latest policy. During the rollout of the trajectory, the estimator provides the updated belief estimate as an additional feature to the policy. The estimator resets to $b_0$ at the beginning of each trajectory.
 
