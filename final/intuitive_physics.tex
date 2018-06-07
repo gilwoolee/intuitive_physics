@@ -189,7 +189,7 @@ In order for this algorithm to work in practice, we need an effective representa
     \item Sample $K$ MDPs from the prior belief distribution $b_0$ and use belief over these $K$ MDPs
     \item Discretize the parameter space and use belief over the parameter space
 \end{itemize}
-In the first case, we use a vector of size $K$ as $b$; $K$ should be large enough to approximate all MDPs with the $K$ sampled ones. In the second case, assuming the latent parameters are independent, the belief is represented as a vector of size $(N_1 + .... + N_M)$ where $M$ is the total number of parameters and $N_m$ is the discretization of the $m$-th parameter. In this project, we have implemented the first one, and leave the second one for future work.
+In the first case, we use a vector of size $K$ as $b$; $K$ should be large enough to approximate all MDPs with the $K$ sampled ones. In the second case, assuming the latent parameters are independent, the belief is represented as a vector of size $(N_1 + \cdots + N_M)$ where $M$ is the total number of parameters and $N_m$ is the discretization of the $m$-th parameter. In this project, we have implemented the first one, and leave the second one for future work.
 
 The algorithm is shown in \aref{algo:bapg}. At each iteration, we sample a number of MDPs from the prior distribution $b_0$, and sample a trajectory for each MDP using the current policy. During the rollout of the trajectory, the estimator provides the updated belief estimate as an additional feature to the policy. The estimator resets to $b_0$ at the beginning of each trajectory.
 
@@ -207,13 +207,13 @@ Note that the policy observes the \emph{evolution} of belief along each trajecto
 \begin{algorithmic}[1]
 \Require Bayes-Estimator $ES$, $b_0$, $\mathcal{M}$, initial policy $\theta_0$, $n_\text{itr}, n_\text{sample}$
 \vspace{2mm}
-\For{$i = 1, 2, \ldots, n_\text{itr}$}
-  \For{$n = 1, 2 , \ldots, n_\text{sample}$}
+\For{$i = 1, 2, \cdots, n_\text{itr}$}
+  \For{$n = 1, 2 , \cdots, n_\text{sample}$}
     \State Reset $ES$ with $b_0$
     \State Sample model parameter $\phi \sim b_0$ to get $M_{\phi}$
     \State Sample a trajectory $\tau_n$ from $M_{\phi}$ using policy $\pi(\theta_i)$ and estimator $ES$
   \EndFor
-  \State Update policy: $\theta_{i+1} = \texttt{BatchPolicyOptimization}(\theta_i, \{\tau_1, ..., \tau_{n_{sample}}\})$
+  \State Update policy: $\theta_{i+1} = \texttt{BatchPolicyOptimization}(\theta_i, \{\tau_1, \cdots, \tau_{n_{sample}}\})$
 \EndFor
 \end{algorithmic}
 \end{algorithm}
