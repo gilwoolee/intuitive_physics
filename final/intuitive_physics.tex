@@ -223,15 +223,14 @@ Note that the policy observes the \emph{evolution} of belief along each trajecto
 Our algorithm falls under the class of model-based algorithms that consider multiple MDPs to train a policy. We therefore compare our algorithm against (1) QMDP and (2) EPOpt. QMDP makes the assumption that $\phi$ is revealed after one step, and takes the best action given $b(\cdot)$, i.e. $a^* = \max R(s,b,a) + \sum_{\phi\in\Phi} b(\phi)Q(s,a,\phi)$. EPOpt is a minimax-style algorithm which trains the policy to be robust across multiple MDPs, without utilizing the belief over MDPs in learning the policy.
 
 We evaluate the three algorithms on a set of simulated benchmark examples: ant (TODO cite), swimmer (TODO cite) and the half-cheetah (TODO cite) using the MuJoCo physics simulator (TODO cite). 
-Owing to the numerous model parameters that can be varied to simulate multiple possible MDPs, these benchmarks prove to be ideal to test robustness against model discrepancies (TODO: refer the tables). 
+Owing to the numerous model parameters that can be varied to simulate multiple possible MDPs, these benchmarks prove to be ideal to test robustness against model discrepancies \ref{table:physicsParams}. 
 Each of the agents is provided a pre-defined reward function as in OpenAI Gym ~\cite{openai}. 
 
-For each agent, we uniformly sampled 20 MDPs across a range of parameters as in (TODO: refer the table) (e.g., body link length, mass, geometry size, joint damping, friction), and used these as the set of MDPs with which we approximate the belief space.
+We implemented EPOpt as illustrated in \cite{rajeswaran2016epopt} with TRPO \cite{trpo} provided by \texttt{rllab}~\cite{duan2016benchmarking} as the underlying batch policy optimization sub-routine.
 
-We implemented EPOpt as in \cite{rajeswaran2016epopt} with TRPO \cite{trpo} provided by \texttt{rllab}~\cite{duan2016benchmarking} as the underlying batch policy optimization sub-routine.
-Our implementation of QMDP uses TRPO policies trained on the chosen 20 MDPs to rollout trajectories and approximate Q-functions. EPOpt
+To implement QMDP and BAPG, for each agent, we uniformly sampled 20 MDPs across a range of parameters as in \ref{table:physicsParams} (e.g., body link length, mass, geometry size, joint damping, friction). QMDP used TRPO policies trained on the chosen 20 MDPs to rollout trajectories and approximate Q-functions. BAPG used these as the set of MDPs with which it approximates the belief space.
 
-All policy networks were Gaussian MLPs with two layers, (64, 64), except for Bayes ones which had (128, 64) to account for the larger input space.
+All the policy networks involved in the implementation of EPOpt and QMDP were Gaussian MLPs with two hidden layers $(64, 64)$. To account for a larger input space involving beliefs, the policy network for Bayes-Adaptive Policy Gradient was architect as a Gaussian MLP with hidden layers $(128, 64)$.
 
 \begin{itemize}
     \item By augmenting the observation with a belief over  MDPs, policy networks can learn to be robust against    model uncertainty while maintaining some of the
@@ -256,30 +255,30 @@ Deadpool & 5 & 45 & 300 & 556 \\
 Front-Link-Length & 3 & 31 & 25 & 415 \\ [1ex] % [1ex] adds vertical space
 \hline %inserts single line
 \end{tabular}
-\label{physicsParams}
+\label{table:physicsParams}
 \end{table}
 
 
-%
-%\begin{figure*}[t!]
-%\begin{centering}
-%\begin{subfigure}[b]{0.24\columnwidth}
-%\includegraphics[width=\linewidth]{figs/cheetah_nominal_comparison.pdf}
-%\subcaption{Nominal MDP}
-%\end{subfigure}
-%~
-%\begin{subfigure}[b]{0.24\columnwidth}
-%\includegraphics[width=\linewidth]{figs/cheetah_env_comparison.pdf}
-%\subcaption{One of K MDPs}
-%\end{subfigure}
-%~
-%\begin{subfigure}[b]{0.22\columnwidth}
-%\includegraphics[width=\linewidth]{figs/cheetah_average.pdf}
-%\subcaption{Over 20 MDPs}
-%\end{subfigure}
-%\end{centering}
-%\caption{Return on sampled and prechosen MDPs. BARL is better than EPOpt. On average across K pre-chosen MDPs, it outperforms EPOpt by a large margin. TODO: remove BMP.}
-%\end{figure*}
+
+\begin{figure*}[t!]
+\begin{centering}
+\begin{subfigure}[b]{0.24\columnwidth}
+\includegraphics[width=\linewidth]{figs/cheetah_nominal_comparison.pdf}
+\subcaption{Nominal MDP}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.24\columnwidth}
+\includegraphics[width=\linewidth]{figs/cheetah_env_comparison.pdf}
+\subcaption{One of K MDPs}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.22\columnwidth}
+\includegraphics[width=\linewidth]{figs/cheetah_average.pdf}
+\subcaption{Over 20 MDPs}
+\end{subfigure}
+\end{centering}
+\caption{Return on sampled and prechosen MDPs. BARL is better than EPOpt. On average across K pre-chosen MDPs, it outperforms EPOpt by a large margin. TODO: remove BMP.}
+\end{figure*}
 
 
 
