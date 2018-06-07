@@ -182,7 +182,7 @@ where $Z$ is a normalizing constant and $P(\phi_{t+1} | \cdot) = 1$ is the deter
 
 The main contribution of our work is a policy-gradient algorithm which produces a universal policy that maintains different strategies for different beliefs. The key idea is to augment the state with the belief and provide this augmented feature as input to the policy. The policy is a function of both state and belief: $\pi: \mathcal{S} \times \mathcal{B} \rightarrow P(\mathcal{A})$, where $\mathcal{B}$ is the belief space. This allows the policy to differentiate between the beliefs while sharing globally effective strategies.
 
-In order for this algorithm to work in practice, we need an effective representation of the belief space. If the space of MDPs, $\mathcal{M}$, is finite, the belief $b$ can be a vector of size $|\mathcal{M}|$. In case where $\mathcal{M}$ is infinite, we propose two methods to approximate the belief space:
+In order for this algorithm to work in practice, we need an effective representation of the belief space. If the space of MDPs $\mathcal{M}$ is finite, the belief $b$ can be a vector of size $|\mathcal{M}|$. If $\mathcal{M}$ is infinite, we propose two methods to approximate the belief space:
 
 \begin{itemize}
     \item Sample $K$ MDPs from the prior belief distribution $b_0$ and use belief over these $K$ MDPs
@@ -190,9 +190,9 @@ In order for this algorithm to work in practice, we need an effective representa
 \end{itemize}
 In the first case, we use a vector of size $K$ as $b$; $K$ should be large enough to approximate all MDPs with the $K$ sampled ones. In the second case, assuming the latent parameters are independent, the belief is represented as a vector of size $(N_1 + .... + N_M)$ where $M$ is the total number of parameters and $N_m$ is the discretization of the $m$-th parameter. In this project, we have implemented the first one, and leave the second one for future work.
 
-The algorithm is shown in \aref{algo:bapg}. At each iteration, we sample a number of MDPs from the prior distribution $b_0$, and sample a trajectory for each MDP using the latest policy. During the rollout of the trajectory, the estimator provides the updated belief estimate as an additional feature to the policy. The estimator resets to $b_0$ at the beginning of each trajectory.
+The algorithm is shown in \aref{algo:bapg}. At each iteration, we sample a number of MDPs from the prior distribution $b_0$, and sample a trajectory for each MDP using the current policy. During the rollout of the trajectory, the estimator provides the updated belief estimate as an additional feature to the policy. The estimator resets to $b_0$ at the beginning of each trajectory.
 
-Note that the policy observes the \emph{evolution} of belief along each trajectory. This allows the policy to learn to be optimal with respect to the evolution of belief, and to take actions which affect the evolution. For example, given prior belief $b_0$ with high entropy (i.e., high uncertainty), our algorithm policy would produce conservative or informative actions until $b$ becomes informative enough along the course of the trajectory. This is a key difference between our algorithm and \cite{yu2017uposi}, in which the policy has no notion of belief or uncertainty.
+Note that the policy observes the \emph{evolution} of belief along each trajectory. This allows the policy to learn to be optimal with respect to the evolution of belief, and to take actions which affect the evolution. For example, given prior belief $b_0$ with high entropy (i.e., high uncertainty), our algorithm policy would produce conservative or informative actions until $b$ becomes informative enough along the course of the trajectory. This is a key difference between our algorithm and UP-OSI~\cite{yu2017uposi}, in which the universal policy has no notion of belief or uncertainty.
 
 %%\newcommand{\argmin}{\operatornamewithlimits{\arg\min}}
 %
@@ -201,19 +201,19 @@ Note that the policy observes the \emph{evolution} of belief along each trajecto
 % Algorithm:
 %------------------------------------------%
 \begin{algorithm}[tb]
-\caption{\texttt{Bayes-Adaptive Policy Gradient}}
+\caption{Bayes-Adaptive Policy Gradient}
 \label{algo:bapg}
 \begin{algorithmic}[1]
-\State Bayes-Estimator $ES$, $b_0$, $\theta_0$, $n_\text{itr}$, $n_\text{sample}, \mathcal{M}$\Comment{Initialization}
+\Require Bayes-Estimator $ES$, $b_0$, $\mathcal{M}$, initial policy $\theta_0$, $n_\text{itr}, n_\text{sample}$
 \vspace{2mm}
-\For{i = 1, 2, ..., $n_\text{itr}$}
-  \For{n = 1, 2 , ..., $n_\text{sample}$}
+\For{$i = 1, 2, \ldots, n_\text{itr}$}
+  \For{$n = 1, 2 , \ldots, n_\text{sample}$}
     \State Reset $ES$ with $b_0$
     \State Sample model parameter $\phi \sim b_0$ to get $M_{\phi}$
     \State Sample a trajectory $\tau_n$ from $M_{\phi}$ using policy $\pi(\theta_i)$ and estimator $ES$
   \EndFor
+  \State Update policy: $\theta_{i+1} = \texttt{BatchPolicyOptimization}(\theta_i, \{\tau_1, ..., \tau_{n_{sample}}\})$
 \EndFor
-\State Update policy: $\pi(\theta_{i+1}) = \texttt{BatchPolOpt}(\theta_i, \{\tau_1, ..., \tau_{n_{sample}}\})$
 \end{algorithmic}
 \end{algorithm}
 
