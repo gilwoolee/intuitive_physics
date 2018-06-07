@@ -240,24 +240,21 @@ All the policy networks involved in the implementation of EPOpt and QMDP were Ga
 \end{itemize}
 
 \begin{table}[ht]
-\caption{Model Parameters}
+\caption{Model Parameter Variation}
 \centering
-\begin{tabular}{l c c c c} % centered columns (4 columns)
+\begin{tabular}{l c} % centered columns (4 columns)
 \hline\hline %inserts double horizontal lines
-Parameter & $\mu$ & $\sigma$ & Low  & High \\ [0.5ex] % inserts table
+Parameter & Variation \\ [0.5ex] % inserts table
 %heading
 \hline % inserts single horizontal line
 \rule{0pt}{2ex}  
-Mass & 1 & 50 & 837 & 970 \\ % inserting body of the table
-Friction & 2 & 47 & 877 & 230 \\
-Damping & 4 & 35 & 144 & 2356 \\
-Deadpool & 5 & 45 & 300 & 556 \\ 
-Front-Link-Length & 3 & 31 & 25 & 415 \\ [1ex] % [1ex] adds vertical space
+Joint Damping & $\pm50\%$\\
+Joint Stiffness & $\pm50\%$\\
+Body-Link-Size & $\pm50\%$\\ [1ex] % [1ex] adds vertical space
 \hline %inserts single line
 \end{tabular}
 \label{table:physicsParams}
 \end{table}
-
 
 
 \begin{figure*}[t!]
