@@ -77,7 +77,7 @@ Model-based reinforcement learning techniques offer an opportunity to overcome t
 The primary challenge with model-based techniques is the discrepancy between simulation and the real world.
 Simplified models, inaccurate or uncertain parameters that govern the dynamics of the model, and other unmodeled disturbances and noise can render the policies learned on the simulated model ineffective on the real system.
 
-We propose a model-based algorithm that learns a universal policy for Bayes-adaptive MDP that is robust and optimal to model uncertainty and disturbances. Although the real system's exact physical parameters are unknown, we can maintain a belief distribution over those parameters and provide this belief as an additional input to the policy.
+We propose a model-based algorithm that learns a universal policy for Bayes-Adaptive Markov Decision Process (BAMDP) that is robust and optimal to model uncertainty and disturbances. Although the real system's exact physical parameters are unknown, we can maintain a belief distribution over those parameters and provide this belief as an additional input to the policy.
 This enables the learned policy to be bold when confident in its model and cautious when there is high model uncertainty.
 
 \section{Related Work}
@@ -112,8 +112,8 @@ TODO: mention \cite{guez2014bayes} and other bayesian work.
 \label{fig:pgm}
 \end{figure*}
 
-We follow the Bayes-Adaptive Markov Decision Process framework (\figref{fig:pgm}), which assumes that a latent variable $\phi$ governs the transition function of the underlying Markov Decision Process~\cite{ghavamzadeh2015bayesian, ross2008bayes, guez2012efficient}.
-A Bayes-Adaptive MDP is defined by a tuple $\langle \mathcal{S}', \mathcal{A}, P, P_0, R \rangle$, where
+We follow the BAMDP framework (\figref{fig:pgm}), which assumes that a latent variable $\phi$ governs the transition function of the underlying Markov Decision Process~\cite{ghavamzadeh2015bayesian, ross2008bayes, guez2012efficient}.
+A BAMDP is defined by a tuple $\langle \mathcal{S}', \mathcal{A}, P, P_0, R \rangle$, where
 \begin{itemize}
 \item $\mathcal{S'} = \mathcal{S}\times \Phi$ is the set of hyper-states (state $s$, latent variable $\phi$),
 \item $\mathcal{A}$ is the set of actions,
@@ -127,7 +127,7 @@ In our setting of robot control, the latent variables $\phi$ are physics paramet
 
 Our goal is to find the Bayes-optimal policy for the following Bellman equaton:
 \begin{equation}\label{eq:rl}
-V^*(b, s) = \max_a \bigg\{R(s, b, a) + \gamma \sum_{s'}P(s', b'|s, b, a)V^*(b', s') \bigg\}.
+V^*(b, s) = \max_a \bigg\{R(s, b, a) + \gamma \sum_{s'}P(s', b'|s, b, a)V^*(b', s') \bigg\}
 \end{equation}
 where $b(\phi)$ is the belief over the set of latent physics parameters $\phi \in \Phi$,
 \begin{align*}
@@ -135,7 +135,7 @@ R(s, b, a)
   &= \sum_{\phi \in \Phi} b(\phi) R(s, \phi, a) \\
 P(s', b' | s, b, a)
   &= \sum_{\phi \in \Phi} b(\phi) P(s', b' | s, \phi, a) \\
-  &= \sum_{\phi \in \Phi} b(\phi) P(s' | s, \phi, a) \sum_{\phi' \in \Phi} P(\phi' | s, \phi, a)
+  &= \sum_{\phi \in \Phi} b(\phi) P(s' | s, \phi, a) \sum_{\phi' \in \Phi} P(\phi' | s, \phi, a).
 \end{align*}
 
 TODO(?): mention PAC-MDP?
