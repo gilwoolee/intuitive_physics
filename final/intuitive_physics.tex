@@ -297,7 +297,7 @@ Body link size & $\pm50\%$\\% [1ex] % [1ex] adds vertical space
 \label{fig:oneFromK}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.29\columnwidth}
+\begin{subfigure}[b]{0.23\columnwidth}
 \includegraphics[width=\linewidth]{figs/cheetah_average.pdf}
 \subcaption{Over 20 MDPs}
 \label{fig:all20}
@@ -334,11 +334,12 @@ An immediately interesting avenue worth exploring is to exploit the mixture of e
 \adjincludegraphics[height=3cm,trim={{.5\width} {0.4\height} {0.25\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_170_92.png}
 \caption{Uses front foot}
 \end{subfigure}
+\hfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.5\width} {0.4\height} {0.25\width} {0.35\height}},clip=true]{figs/keyframes/cheetah/cheetah_150_150.png}
 \caption{Uses front knee}
 \end{subfigure}
-\hfill
+\vfill
 \begin{subfigure}[b]{0.3\columnwidth}
 \adjincludegraphics[height=3cm,trim={{.4\width} {0.42\height} {0.35\width} {0.33\height}},clip=true]{figs/keyframes/ant/ant_nominal_18.png}
 \caption{Uses all legs}
@@ -368,9 +369,9 @@ An immediately interesting avenue worth exploring is to exploit the mixture of e
 \adjincludegraphics[height=3cm,trim={{.35\width} {.2\width} {0.416\width} {0.50\height}},clip=true]{figs/keyframes/swimmer/swimmer_40_157.png}
 \caption{Wiggles head}
 \end{subfigure}
-\end{centering}
 \caption{Keyframes from rollouts on various MDPs. Some of the MDPs are significantly different, so they require drastically different policies to achieve high returns. See \url{https://goo.gl/DN7V9o} for videos.}
 \label{fig:frames}
+\end{centering}
 \end{figure*}
 
 \bibliography{intuitive_physics}
