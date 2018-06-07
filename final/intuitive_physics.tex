@@ -222,7 +222,7 @@ Note that the policy observes the \emph{evolution} of belief along each trajecto
 
 Our algorithm falls under the class of model-based algorithms that consider multiple MDPs to train a policy. We therefore compare our algorithm against (1) QMDP and (2) EPOpt. QMDP makes the assumption that $\phi$ is revealed after one step, and takes the best action given $b(\cdot)$, i.e. $a^* = \max R(s,b,a) + \sum_{\phi\in\Phi} b(\phi)Q(s,a,\phi)$. EPOpt is a minimax-style algorithm which trains the policy to be robust across multiple MDPs, without utilizing the belief over MDPs in learning the policy.
 
-We evaluate the three algorithms on a set of simulated benchmark examples: \textbf{ant} (TODO cite), \textbf{swimmer} (TODO cite) and the \textbf{half-cheetah} (TODO cite) using the MuJoCo physics simulator (TODO cite). 
+We evaluate the three algorithms on a set of simulated benchmark examples: \textbf{ant} ~\cite{schulman2015high}, \textbf{swimmer}~\cite{coulom2002reinforcement} and the \textbf{half-cheetah} (TODO cite) using the MuJoCo physics simulator~\cite{todorov2012mujoco}. 
 Owing to the numerous model parameters that can be varied to simulate multiple possible MDPs, these benchmarks prove to be ideal to test robustness against model discrepancies \ref{table:physicsParams}. 
 Each of the agents is provided a pre-defined reward function as in OpenAI Gym ~\cite{openai}. 
 
